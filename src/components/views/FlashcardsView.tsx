@@ -17,20 +17,42 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
   });
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const [sending, setSending] = useState(false);
   const start = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const card = session[index];
 
-  const next = () => { setIndex(i => Math.min(i + 1, session.length)); setFlipped(false); };
-  const previous = () => { setIndex(i => Math.max(0, i - 1)); setFlipped(false); };
+  const next = () => { setIndex(i => Math.min(i + 1, session.length)); setFlipped(false); setDragY(0); setSending(false); };
+  const previous = () => { setIndex(i => Math.max(0, i - 1)); setFlipped(false); setDragY(0); };
+  const sendCardAway = () => {
+    if (sending) return;
+    setSending(true);
+    window.setTimeout(next, 280);
+  };
   const rate = (remembered: boolean) => { if (!card) return; onRateWord(card.id, remembered); next(); };
+  const today = todayKey();
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const dateKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const tomorrowKey = dateKey(tomorrow);
+  const daysUntil = (date: string) => Math.round((new Date(`${date}T12:00:00`).getTime() - new Date(`${today}T12:00:00`).getTime()) / 86400000);
+  const freshToday = Math.max(0, 10 - (progress.leitnerNewDate === today ? progress.leitnerNewCount : 0));
+  const reminders = [
+    { label: 'امروز', count: allVocabulary.filter(w => progress.leitnerCards[w.id]?.dueDate <= today).length + freshToday },
+    { label: 'فردا', count: allVocabulary.filter(w => progress.leitnerCards[w.id]?.dueDate === tomorrowKey).length },
+    { label: 'هفته‌ی بعد', count: allVocabulary.filter(w => { const d = progress.leitnerCards[w.id]?.dueDate; return d && daysUntil(d) >= 2 && daysUntil(d) <= 7; }).length },
+    { label: 'ماه بعد', count: allVocabulary.filter(w => { const d = progress.leitnerCards[w.id]?.dueDate; return d && daysUntil(d) >= 8 && daysUntil(d) <= 30; }).length },
+  ];
 
   return (
     <div className="flex flex-col gap-5 pb-36 px-4 max-w-xl mx-auto animate-fade-in">
       <header className="bg-gradient-to-br from-indigo-700 via-violet-600 to-fuchsia-600 rounded-3xl p-5 text-white shadow-lg">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white/15 px-2.5 py-1 rounded-full"><Layers className="w-3.5 h-3.5" /> یادگیری واژه‌ها</span>
-        <h2 className="text-xl font-black mt-2">فلش کارت</h2>
-        <p className="text-xs text-white/80 mt-1">روی کارت بزن تا برگردد؛ برای رفتن به واژه‌ی بعدی، کارت را به بالا بکش.</p>
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white/15 px-2.5 py-1 rounded-full"><Layers className="w-3.5 h-3.5" /> مرور فاصله‌دار</span>
+        <h2 className="text-xl font-black mt-2">جعبه‌ی لایتنر</h2>
+        <p className="text-xs text-white/80 mt-1">کارت‌ها با یادآوری درست به خانه‌ی بعد می‌روند؛ اگر یادت نبود، به خانه‌ی اول برمی‌گردند.</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+          {reminders.map(item => <div key={item.label} className="rounded-xl bg-white/15 px-2 py-2 text-center"><p className="text-[10px] text-white/75">{item.label}</p><p className="text-sm font-black mt-0.5">{item.count.toLocaleString('fa-IR')} کارت</p></div>)}
+        </div>
       </header>
 
       {card ? <>
@@ -42,25 +64,28 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
         </div>
       </div>
 
-      <div className="relative h-[390px] px-2">
-        <div className="absolute inset-x-7 top-4 bottom-0 rounded-[32px] bg-indigo-100/80 rotate-3" />
-        <div className="absolute inset-x-4 top-2 bottom-2 rounded-[32px] bg-violet-100 -rotate-2" />
+      <div className="relative mx-auto h-[390px] w-full max-w-[370px] px-2 [perspective:1000px]">
+        {[5, 4, 3, 2, 1].map((layer) => <div key={layer} className="absolute inset-x-6 rounded-[32px] border border-slate-200/70 bg-white shadow-md pointer-events-none" style={{ top: -layer * 12, bottom: -layer * 12, transform: `scale(${1 - layer * 0.035})`, opacity: 0.22 + (6 - layer) * 0.11, zIndex: 6 - layer }} />)}
         <button
           type="button"
           aria-label={flipped ? 'روی کارت را نشان بده' : 'معنی کارت را نشان بده'}
-          onPointerDown={e => { start.current = { x: e.clientX, y: e.clientY }; swiped.current = false; }}
+          onPointerDown={e => { start.current = { x: e.clientX, y: e.clientY }; swiped.current = false; e.currentTarget.setPointerCapture(e.pointerId); }}
+          onPointerMove={e => { if (!start.current) return; const dy = e.clientY - start.current.y; if (Math.abs(dy) > 8) { swiped.current = true; setDragY(dy); } }}
           onPointerUp={e => {
             if (!start.current) return;
             const dx = e.clientX - start.current.x;
             const dy = e.clientY - start.current.y;
             if (Math.abs(dy) > 45 && Math.abs(dy) > Math.abs(dx)) {
               swiped.current = true;
-              if (dy < 0) next(); else previous();
+              if (dy < 0) sendCardAway(); else previous();
+            } else {
+              setDragY(0);
             }
             start.current = null;
           }}
           onClick={() => { if (!swiped.current) setFlipped(v => !v); swiped.current = false; }}
-          className="absolute inset-0 w-full rounded-[32px] bg-white border border-slate-100 shadow-xl p-7 text-center flex flex-col items-center justify-center touch-none select-none active:scale-[0.99] transition-transform"
+          className={`absolute inset-x-3 top-0 bottom-4 w-auto rounded-[32px] bg-white border border-slate-100 shadow-[0_24px_55px_rgba(15,23,42,0.22)] p-6 text-center flex flex-col items-center justify-center touch-none select-none z-10 ${sending ? 'pointer-events-none' : ''}`}
+          style={{ transform: sending ? 'translate3d(0,-135%,0) rotate(-9deg) scale(.84)' : `translate3d(0,${dragY}px,0) rotate(${dragY * -0.025}deg) scale(${Math.max(.94, 1 - Math.abs(dragY) / 1400)})`, opacity: sending ? 0 : 1, transition: dragY === 0 || sending ? 'transform 280ms cubic-bezier(.2,.8,.2,1), opacity 240ms ease' : 'none' }}
         >
           {!flipped ? (
             <>
@@ -76,6 +101,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
             <>
               <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">معنی واژه</span>
               <h3 className="text-3xl font-black text-slate-800 mt-6">{card.meaningFa}</h3>
+              <p className="text-[11px] text-violet-700 bg-violet-50 px-3 py-1.5 rounded-full mt-2">تاریخ مرور: {progress.leitnerCards[card.id]?.dueDate ? new Date(`${progress.leitnerCards[card.id].dueDate}T12:00:00`).toLocaleDateString('fa-IR') : 'امروز'}</p>
               <div className="w-full border-t border-slate-100 mt-7 pt-5">
                 <p className="text-xs font-bold text-slate-500 mb-2">معنی جمله</p>
                 <p className="text-base text-slate-700 leading-relaxed">{card.exampleFa}</p>
@@ -98,7 +124,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
       </div>
       </> : <div className="bg-white rounded-3xl p-7 text-center border border-slate-100 shadow-sm">
         <h3 className="text-lg font-black text-slate-800">مرور امروز تمام شد</h3>
-        <p className="text-sm text-slate-500 mt-2">کارت‌های تازه یا سررسیدشده‌ی دیگری برای امروز ندارید. فردا دوباره به این بخش سر بزنید.</p>
+        <p className="text-sm text-slate-500 mt-2">کارت‌های تازه یا سررسیدشده‌ی دیگری برای امروز ندارید. کارت‌های بعدی طبق تاریخ یادآوری‌شان نمایش داده می‌شوند.</p>
       </div>}
     </div>
   );

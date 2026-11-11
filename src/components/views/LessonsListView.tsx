@@ -81,15 +81,13 @@ export const LessonsListView: React.FC<LessonsListViewProps> = ({
                     <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
                       {lesson.badge}
                     </span>
-                    <span className="text-[11px] text-slate-400 flex items-center gap-1 font-en">
-                      <Clock className="w-3 h-3" />
-                      {lesson.estimatedMinutes} min
+                    <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {lesson.estimatedMinutes} دقیقه
                     </span>
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-slate-800 mt-1">
                     {lesson.titleFa}
                   </h4>
-                  <p className="text-xs text-slate-400 font-en mt-0.5">{lesson.titleEn}</p>
                 </div>
               </div>
 

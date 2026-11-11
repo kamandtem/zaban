@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Home, Compass, BookOpen, Layers, RotateCw, BarChart2, Copy,
-  Settings, Code2, Sprout, Moon, Sun, Type, Target, Info, ArrowRight,
+  Settings, Code2, Sprout, Moon, Sun, Target, Info, ArrowRight,
 } from 'lucide-react';
 import { MascotAvatar } from './MascotAvatar';
 import type { NavTab } from './BottomNav';
@@ -17,8 +17,6 @@ interface SideMenuProps {
   mistakesCount: number;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
-  fontSize: 'sm' | 'md' | 'lg';
-  onChangeFontSize: (v: 'sm' | 'md' | 'lg') => void;
   dailyGoal: number;
   onChangeDailyGoal: (n: number) => void;
   onReplayIntro: () => void;
@@ -88,7 +86,7 @@ const PANEL_WIDTH = 320;
 export const SideMenu: React.FC<SideMenuProps> = ({
   open, onClose, currentTab, onNavigate,
   points, level, mistakesCount,
-  theme, onToggleTheme, fontSize, onChangeFontSize,
+  theme, onToggleTheme,
   dailyGoal, onChangeDailyGoal, onReplayIntro,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
@@ -208,14 +206,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({
               {dark ? <Moon className="w-5 h-5 text-indigo-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
               <span className="flex-1 text-sm font-bold text-slate-700">تم شب</span>
               <Toggle on={dark} onClick={onToggleTheme} label="تم شب" />
-            </div>
-
-            <div className="p-3 rounded-2xl bg-slate-50 flex flex-col gap-2.5">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                <Type className="w-5 h-5 text-slate-400" /><span>اندازه‌ی متن</span>
-              </div>
-              <Segmented value={fontSize} onChange={onChangeFontSize}
-                options={[{ v: 'sm', label: 'کوچک' }, { v: 'md', label: 'معمولی' }, { v: 'lg', label: 'بزرگ' }]} />
             </div>
 
             <div className="p-3 rounded-2xl bg-slate-50 flex flex-col gap-2.5">

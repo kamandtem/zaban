@@ -9,13 +9,27 @@ import {
   AlertTriangle,
   CheckCircle2,
   Sparkles,
-  RotateCw,
   Clock,
   Bookmark,
   BookmarkCheck,
   Layers,
   HelpCircle
 } from 'lucide-react';
+
+const formulaTone = (part: string) => part === 'فاعل'
+  ? 'bg-sky-100 text-sky-800'
+  : part.includes('فعل کمکی') ? 'bg-amber-100 text-amber-800'
+  : part === 'مفعول' ? 'bg-purple-100 text-purple-800'
+  : part === 'کلمه پرسشی' ? 'bg-pink-100 text-pink-800'
+  : part.includes('فعل') || /^(am|is|are|was|were)$/i.test(part.trim()) ? 'bg-emerald-100 text-emerald-800' : '';
+
+const formulaParts = (text: string) => text.split(/(فاعل|مفعول|فعل کمکی|فعل اصلی|شکل ساده فعل|شکل سوم فعل|شکل گذشته فعل|کلمه پرسشی|فعل|\b(?:am|is|are|was|were)\b)/gi);
+
+const breakdownTone = (part: string) => part.includes('فاعل')
+  ? 'text-sky-700'
+  : part.includes('فعل کمکی') || part.includes('کمکی') ? 'text-amber-700'
+  : part.includes('مفعول') ? 'text-purple-700'
+  : part.includes('فعل') || part.includes(' be ') ? 'text-emerald-700' : 'text-indigo-600';
 
 interface LessonDetailViewProps {
   lesson: Lesson;
@@ -36,6 +50,8 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
 }) => {
   const [isExerciseOpen, setIsExerciseOpen] = useState<boolean>(false);
   const isCompleted = progress.completedLessons.includes(lesson.id);
+  const isWhLesson = lesson.slug === 'question-words';
+  const isArticleLesson = lesson.slug === 'articles-a-an-the';
 
   const handleExerciseComplete = (correctCount: number, totalCount: number) => {
     if (correctCount >= Math.ceil(totalCount * 0.6)) {
@@ -77,6 +93,19 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
         <h2 className="text-xl sm:text-2xl font-black">{lesson.titleFa}</h2>
         <p className="text-xs sm:text-sm text-indigo-100 mt-1">{lesson.titleEn}</p>
       </div>
+
+      <details className="bg-white rounded-2xl border border-slate-200 shadow-xs group">
+        <summary className="cursor-pointer list-none flex items-center justify-between p-4 text-sm font-bold text-slate-800">
+          <span>این درس را ساده یاد بگیریم</span><span className="text-indigo-500 transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <p className="px-4 pb-4 text-xs sm:text-sm leading-relaxed text-slate-600">{lesson.mainIdea}</p>
+      </details>
+      <details className="bg-amber-50/70 rounded-2xl border border-amber-200/80 group">
+        <summary className="cursor-pointer list-none flex items-center justify-between p-4 text-sm font-bold text-amber-900">
+          <span>تفاوت این ساختار با فارسی</span><span className="text-amber-700 transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <p className="px-4 pb-4 text-xs sm:text-sm leading-relaxed text-amber-950">{lesson.persianComparison}</p>
+      </details>
 
       {/* SPECIAL COLOR MAP FOR AUXILIARY VERBS (LESSON 4 SPECIFIC REQUEST) */}
       {lesson.id === 4 && (
@@ -144,39 +173,10 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
         </div>
       )}
 
-      {/* 1. ایده اصلی (MAIN CONCEPT) */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs">
-        <h3 className="text-sm font-bold text-indigo-600 flex items-center gap-2 mb-2">
-          <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs font-bold">
-            ۱
-          </span>
-          <span>این درس را ساده یاد بگیریم</span>
-        </h3>
-        <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-          {lesson.mainIdea}
-        </p>
-      </div>
-
-      {/* 2. مقایسه با زبان فارسی (PERSIAN COMPARISON) */}
-      <div className="bg-amber-50/70 border border-amber-200/80 rounded-3xl p-5 shadow-xs">
-        <h3 className="text-sm font-bold text-amber-800 flex items-center gap-2 mb-2">
-          <span className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-900">
-            ۲
-          </span>
-          <span>تفاوت این ساختار با فارسی</span>
-        </h3>
-        <p className="text-xs sm:text-sm text-amber-950 leading-relaxed">
-          {lesson.persianComparison}
-        </p>
-      </div>
-
-      {/* 3. فرمول‌ها (FORMULAS - STRICTLY LEFT TO RIGHT) */}
+      {/* فرمول‌ها */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-sm font-bold text-indigo-600 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs font-bold">
-              ۳
-            </span>
             <span>فرمول جمله‌سازی با رنگ‌بندی</span>
           </h3>
         </div>
@@ -184,7 +184,7 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
         {lesson.formulas.positiveSteps ? (
           <>
             <FormulaVisualizer
-              titleFa="جمله مثبت"
+              titleFa="جمله‌ی خبری"
               type="positive"
               steps={lesson.formulas.positiveSteps}
               sentenceExample={lesson.examples[0]}
@@ -199,8 +199,8 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
             )}
             {lesson.formulas.questionSteps && (
               <FormulaVisualizer
-                titleFa="جمله سوالی"
-                type="question"
+                titleFa={lesson.slug === 'imperatives-and-requests' ? 'درخواست مؤدبانه' : 'جمله‌ی پرسشی'}
+                type={lesson.slug === 'imperatives-and-requests' ? 'request' : 'question'}
                 steps={lesson.formulas.questionSteps}
                 sentenceExample={lesson.examples[2]}
               />
@@ -210,47 +210,44 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
           <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs flex flex-col gap-2.5">
             <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
               <span className="text-[11px] font-bold text-emerald-700 block mb-1">
-                حالت مثبت (+):
+                {isWhLesson ? 'الگوی سوال پرسشی:' : isArticleLesson ? 'کاربرد حرف تعریف:' : 'جمله‌ی خبری:'}
               </span>
-              <p dir="rtl" className="text-xs sm:text-sm font-bold text-slate-800 text-right leading-8">
-                {lesson.formulas.positive.split(/(فاعل|مفعول|فعل کمکی|فعل اصلی|شکل ساده فعل|شکل سوم فعل|شکل گذشته فعل|کلمه پرسشی|فعل)/g).map((part, i) => {
-                  const tone = part === 'فاعل' ? 'bg-sky-100 text-sky-800' : part === 'مفعول' ? 'bg-purple-100 text-purple-800' : part.includes('فعل') ? 'bg-emerald-100 text-emerald-800' : part === 'کلمه پرسشی' ? 'bg-pink-100 text-pink-800' : '';
+              <p dir="ltr" className="text-xs sm:text-sm font-bold text-slate-800 text-left leading-8 whitespace-pre-line">
+                {formulaParts(lesson.formulas.positive).map((part, i) => {
+                  const tone = formulaTone(part);
                   return tone ? <span key={i} className={`inline-block mx-0.5 px-2 py-0.5 rounded-lg ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
                 })}
               </p>
             </div>
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+            {!isWhLesson && !isArticleLesson && <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
               <span className="text-[11px] font-bold text-rose-700 block mb-1">
-                حالت منفی (-):
+                جمله‌ی منفی:
               </span>
-              <p dir="rtl" className="text-xs sm:text-sm font-bold text-slate-800 text-right leading-8">
-                {lesson.formulas.negative.split(/(فاعل|مفعول|فعل کمکی|فعل اصلی|شکل ساده فعل|شکل سوم فعل|شکل گذشته فعل|کلمه پرسشی|فعل)/g).map((part, i) => {
-                  const tone = part === 'فاعل' ? 'bg-sky-100 text-sky-800' : part === 'مفعول' ? 'bg-purple-100 text-purple-800' : part.includes('فعل') ? 'bg-emerald-100 text-emerald-800' : part === 'کلمه پرسشی' ? 'bg-pink-100 text-pink-800' : '';
+              <p dir="ltr" className="text-xs sm:text-sm font-bold text-slate-800 text-left leading-8 whitespace-pre-line">
+                {formulaParts(lesson.formulas.negative).map((part, i) => {
+                  const tone = formulaTone(part);
                   return tone ? <span key={i} className={`inline-block mx-0.5 px-2 py-0.5 rounded-lg ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
                 })}
               </p>
-            </div>
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+            </div>}
+            {!isWhLesson && !isArticleLesson && <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
               <span className="text-[11px] font-bold text-sky-700 block mb-1">
-                حالت سوالی (؟):
+                جمله‌ی پرسشی:
               </span>
-              <p dir="rtl" className="text-xs sm:text-sm font-bold text-slate-800 text-right leading-8">
-                {lesson.formulas.question.split(/(فاعل|مفعول|فعل کمکی|فعل اصلی|شکل ساده فعل|شکل سوم فعل|شکل گذشته فعل|کلمه پرسشی|فعل)/g).map((part, i) => {
-                  const tone = part === 'فاعل' ? 'bg-sky-100 text-sky-800' : part === 'مفعول' ? 'bg-purple-100 text-purple-800' : part.includes('فعل') ? 'bg-emerald-100 text-emerald-800' : part === 'کلمه پرسشی' ? 'bg-pink-100 text-pink-800' : '';
+              <p dir="ltr" className="text-xs sm:text-sm font-bold text-slate-800 text-left leading-8 whitespace-pre-line">
+                {formulaParts(lesson.formulas.question).map((part, i) => {
+                  const tone = formulaTone(part);
                   return tone ? <span key={i} className={`inline-block mx-0.5 px-2 py-0.5 rounded-lg ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
                 })}
               </p>
-            </div>
+            </div>}
           </div>
         )}
       </div>
 
-      {/* 4. مثال‌ها (EXAMPLES) */}
+      {/* مثال‌ها */}
       <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs">
         <h3 className="text-sm font-bold text-indigo-600 flex items-center gap-2 mb-3">
-          <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs font-bold">
-            ۴
-          </span>
           <span>مثال‌های کوتاه و کاربردی روزمره</span>
         </h3>
 
@@ -269,7 +266,7 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
                   <div className="text-[11px] text-indigo-600 mt-1 border-t border-slate-200/60 pt-1 flex flex-col gap-0.5">
                     <span className="font-bold">🔍 تجزیه اجزا:</span>
                     {ex.breakdown.split(/\s*(?:\+|\||→|->)\s*/).filter(Boolean).map((part, partIdx) => (
-                      <span key={partIdx} dir="auto" className="leading-relaxed">{part}</span>
+                      <span key={partIdx} dir="auto" className={`leading-relaxed ${breakdownTone(part)}`}>{part}</span>
                     ))}
                   </div>
                 )}
@@ -279,12 +276,9 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
         </div>
       </div>
 
-      {/* 5. واژگان کلیدی این درس (VOCABULARY) */}
+      {/* واژگان کلیدی این درس */}
       <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs">
         <h3 className="text-sm font-bold text-indigo-600 flex items-center gap-2 mb-3">
-          <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs font-bold">
-            ۵
-          </span>
           <span>واژگان کاربردی مرتبط با این درس</span>
         </h3>
 
@@ -358,9 +352,6 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
 
       {/* 7. تمرین تعاملی ۴ گانه (PRACTICE CTA) */}
       <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200 rounded-3xl p-5 shadow-xs flex flex-col items-center text-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20">
-          <RotateCw className="w-6 h-6 animate-spin-slow" />
-        </div>
         <div>
           <h4 className="text-base font-bold text-slate-800">
             تمرین تعاملی این درس (چرخ انتخاب، مرتب‌سازی و جای خالی)

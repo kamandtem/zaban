@@ -232,7 +232,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <h5 className="text-xs sm:text-sm font-bold text-slate-800">
                   درس ۱: پایه‌های جمله‌سازی
                 </h5>
-                <p className="text-[11px] text-slate-400">ترتیب کلمات فاعل + فعل + مفعول</p>
+                <p dir="ltr" className="text-[11px] text-slate-400 text-left">فاعل + فعل + مفعول</p>
               </div>
             </div>
             <div className="flex items-center gap-2">

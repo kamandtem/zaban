@@ -18,16 +18,16 @@ export const allLessons: Lesson[] = [
       question: 'فعل کمکی ➜ فاعل ➜ شکل ساده فعل ➜ مفعول؟',
       notes: 'قید زمان معمولاً در انتهای جمله قرار می‌گیرد.',
       positiveSteps: [
-        { roleFa: '۱. فاعل', example: 'Sara', noteFa: 'شروع از چپ' },
-        { roleFa: '۲. فعل اصلی', example: 'reads', noteFa: 'بلافاصله بعد فاعل' },
-        { roleFa: '۳. مفعول', example: 'books' },
-        { roleFa: '۴. زمان', example: 'every day' }
+        { roleFa: 'فاعل', example: 'Sara', noteFa: 'شروع از چپ' },
+        { roleFa: 'فعل اصلی', example: 'reads', noteFa: 'بلافاصله بعد فاعل' },
+        { roleFa: 'مفعول', example: 'books' },
+        { roleFa: 'زمان', example: 'every day' }
       ],
       negativeSteps: [
-        { roleFa: '۱. فاعل', example: 'She' },
-        { roleFa: '۲. کمکی منفی', example: "doesn't", auxVerb: "doesn't" },
-        { roleFa: '۳. شکل ساده فعل', example: 'eat', noteFa: 'ساده' },
-        { roleFa: '۴. مفعول', example: 'apples' }
+        { roleFa: 'فاعل', example: 'She' },
+        { roleFa: 'کمکی منفی', example: "doesn't", auxVerb: "doesn't" },
+        { roleFa: 'شکل ساده فعل', example: 'eat', noteFa: 'ساده' },
+        { roleFa: 'مفعول', example: 'apples' }
       ]
     },
     examples: [
@@ -271,9 +271,9 @@ export const allLessons: Lesson[] = [
     persianComparison: 'معادل «هستم، هستی، است، هستیم، هستند» در فارسی حال، و «بودم، بودی، بود، بودیم، بودند» در گذشته است.',
     formulas: {
       title: 'فرمول استفاده از To Be',
-      positive: 'حال: I am | He/She/It is | We/You/They are\nگذشته: I/He/She/It was | We/You/They were',
-      negative: 'اضافه کردن not بلافاصله بعد از فعل: am not, is not (isn\'t), are not (aren\'t), wasn\'t, weren\'t',
-      question: 'بردن فعل to be به اول جمله: Am I? / Is he? / Are you? / Were they?',
+      positive: 'I am + صفت / اسم / مکان\nHe / She / It is + صفت / اسم / مکان\nWe / You / They are + صفت / اسم / مکان\nI / He / She / It was + صفت / اسم / مکان\nWe / You / They were + صفت / اسم / مکان',
+      negative: 'I am not + صفت / اسم / مکان\nHe / She / It is not + صفت / اسم / مکان\nWe / You / They are not + صفت / اسم / مکان\nI / He / She / It was not + صفت / اسم / مکان\nWe / You / They were not + صفت / اسم / مکان',
+      question: 'Am I + صفت / اسم / مکان؟\nIs he / she / it + صفت / اسم / مکان؟\nAre we / you / they + صفت / اسم / مکان؟\nWas I / he / she / it + صفت / اسم / مکان؟\nWere we / you / they + صفت / اسم / مکان؟',
       shortAnswer: 'Yes, I am. / No, he isn\'t.'
     },
     examples: [
@@ -397,22 +397,22 @@ export const allLessons: Lesson[] = [
       question: 'فعل کمکی ➜ فاعل ➜ شکل ساده فعل؟',
       shortAnswer: 'Yes, I do. / No, she doesn\'t. / Yes, he did.',
       positiveSteps: [
-        { roleFa: '۱. فاعل', example: 'She' },
-        { roleFa: '۲. کمکی منفی', example: "doesn't", auxVerb: "doesn't" },
-        { roleFa: '۳. شکل ساده فعل', example: 'eat', noteFa: 'ساده بدون تغییر' },
-        { roleFa: '۴. مفعول', example: 'meat' }
+        { roleFa: 'فاعل', example: 'She' },
+        { roleFa: 'کمکی منفی', example: "doesn't", auxVerb: "doesn't" },
+        { roleFa: 'شکل ساده فعل', example: 'eat', noteFa: 'ساده بدون تغییر' },
+        { roleFa: 'مفعول', example: 'meat' }
       ],
       negativeSteps: [
-        { roleFa: '۱. فاعل', example: 'They' },
-        { roleFa: '۲. کمکی منفی', example: "don't", auxVerb: "don't" },
-        { roleFa: '۳. شکل ساده فعل', example: 'know', noteFa: 'ساده' },
-        { roleFa: '۴. مفعول', example: 'the answer' }
+        { roleFa: 'فاعل', example: 'They' },
+        { roleFa: 'کمکی منفی', example: "don't", auxVerb: "don't" },
+        { roleFa: 'شکل ساده فعل', example: 'know', noteFa: 'ساده' },
+        { roleFa: 'مفعول', example: 'the answer' }
       ],
       questionSteps: [
-        { roleFa: '۱. کمکی اول جمله', example: 'Do / Does', auxVerb: 'do' },
-        { roleFa: '۲. فاعل', example: 'you' },
-        { roleFa: '۳. شکل ساده فعل', example: 'like', noteFa: 'بدون پسوند' },
-        { roleFa: '۴. مفعول', example: 'milk?' }
+        { roleFa: 'کمکی اول جمله', example: 'Do / Does', auxVerb: 'do' },
+        { roleFa: 'فاعل', example: 'you' },
+        { roleFa: 'شکل ساده فعل', example: 'like', noteFa: 'بدون پسوند' },
+        { roleFa: 'مفعول', example: 'milk?' }
       ]
     },
     examples: [
@@ -536,20 +536,20 @@ export const allLessons: Lesson[] = [
       title: 'فرمول جملات امری و درخواست‌ها',
       positive: 'شکل ساده فعل ➜ مفعول (مثل: Open the door)',
       negative: 'کلمه Don\'t ➜ شکل ساده فعل ➜ مفعول (مثل: Don\'t touch that)',
-      question: 'لطفاً ➜ شکل ساده فعل (مثل: Please open the door) یا آیا می‌توانید لطفاً + فعل؟',
+      question: 'Could you + شکل ساده فعل + مفعول, please? (مثل: Could you open the door, please?)',
       notes: 'در حالت امری فاعل حذف می‌شود و جمله مستقیماً با خود فعل آغاز می‌گردد.',
       positiveSteps: [
-        { roleFa: '۱. شکل ساده فعل', example: 'Open', noteFa: 'بدون فاعل' },
-        { roleFa: '۲. مفعول', example: 'the door', noteFa: 'در را' }
+        { roleFa: 'شکل ساده فعل', example: 'Open', noteFa: 'بدون فاعل' },
+        { roleFa: 'مفعول', example: 'the door', noteFa: 'در را' }
       ],
       negativeSteps: [
-        { roleFa: '۱. نهی کننده', example: "Don't", auxVerb: "don't", noteFa: 'نکن' },
-        { roleFa: '۲. شکل ساده فعل', example: 'worry', noteFa: 'نگران' }
+        { roleFa: 'نهی کننده', example: "Don't", auxVerb: "don't", noteFa: 'نکن' },
+        { roleFa: 'شکل ساده فعل', example: 'worry', noteFa: 'نگران' }
       ],
       questionSteps: [
-        { roleFa: '۱. کلمه احترام', example: 'Please', noteFa: 'لطفاً' },
-        { roleFa: '۲. شکل ساده فعل', example: 'open', noteFa: 'باز کن' },
-        { roleFa: '۳. مفعول', example: 'the window', noteFa: 'پنجره را' }
+        { roleFa: 'درخواست مودبانه', example: 'Could you', noteFa: 'ممکن است شما...' },
+        { roleFa: 'فعل ساده', example: 'open', noteFa: 'باز کنید' },
+        { roleFa: 'مفعول', example: 'the window, please', noteFa: 'پنجره را، لطفاً' }
       ]
     },
     examples: [
@@ -668,9 +668,9 @@ export const allLessons: Lesson[] = [
     persianComparison: 'معلوم: «آشپز غذا را می‌پزد». مجهول: «غذا پخته می‌شود». در فارسی هم مفعول به ابتدای جمله می‌آید و فعل با «شدن» ترکیب می‌شود.',
     formulas: {
       title: 'فرمول جمله مجهول',
-      positive: 'مفعول + شکل مناسب فعل «بودن» + شکل سوم فعل (+ توسط انجام‌دهنده کار)',
-      negative: 'مفعول + شکل مناسب فعل «بودن» + not + شکل سوم فعل',
-      question: 'شکل مناسب فعل «بودن» + مفعول + شکل سوم فعل؟',
+      positive: 'مفعول + am / is / are / was / were + شکل سوم فعل (+ by + انجام‌دهنده)',
+      negative: 'مفعول + am / is / are / was / were + not + شکل سوم فعل',
+      question: 'Am / Is / Are / Was / Were + مفعول + شکل سوم فعل؟',
       notes: 'اگر بخواهیم انجام‌دهنده را ذکر کنیم، از کلمه by در انتهای جمله استفاده می‌کنیم: by the chef.'
     },
     examples: [
@@ -905,9 +905,9 @@ export const allLessons: Lesson[] = [
     persianComparison: 'در فارسی نشانه نکره «یک کتاب» یا «کتابی» است. نشانه معرفه (the) در فارسی کلماتی مثل «اون کتابه» یا آوردن «را» است: «کتاب را بده» یعنی همان کتاب مشخص.',
     formulas: {
       title: 'قانون انتخاب حرف تعریف',
-      positive: 'a + واژه‌هایی که معمولاً با حرف بی‌صدا شروع می‌شوند (a cat)\nan + واژه‌هایی که معمولاً با a, e, i, o, u شروع می‌شوند (an apple)\nthe + اسم مشخص و شناخته‌شده',
-      negative: 'اسم‌های جمع و غیرقابل‌شمارش در حالت کلی هیچ حرف تعریفی نمی‌گیرند: I like apples.',
-      question: 'Can you give me the pen on the table?',
+      positive: 'a + اسم مفرد با آغاز بی‌صدا (a cat)\nan + اسم مفرد با آغاز صدادار (an apple / an hour)\nthe + اسم مشخص و شناخته‌شده',
+      negative: '',
+      question: '',
       notes: 'برای شروع، به حرف اول کلمه نگاه کن. چند استثنا وجود دارد که در درس‌های بعدی یاد می‌گیری.'
     },
     examples: [

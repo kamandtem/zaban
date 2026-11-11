@@ -14,7 +14,9 @@ import {
   Flame,
   HelpCircle,
   Layers,
-  Wand2
+  Wand2,
+  CircleDot,
+  Target,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -193,7 +195,7 @@ export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          🔘 تمرین تک بخش
+          <span className="inline-flex items-center justify-center gap-1.5"><CircleDot className="w-4 h-4" />تمرین تک‌بخش</span>
         </button>
         <button
           type="button"
@@ -208,7 +210,7 @@ export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          🎯 جمله چند بخشی
+          <span className="inline-flex items-center justify-center gap-1.5"><Target className="w-4 h-4" />جمله‌ی چندبخشی</span>
         </button>
       </div>
 

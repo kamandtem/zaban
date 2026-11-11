@@ -20,11 +20,8 @@ import { Onboarding } from './components/Onboarding';
 
 const ONBOARD_KEY = 'lingoplus_onboarded_v1';
 const THEME_KEY = 'lingoplus_theme_v1';
-const FONT_KEY = 'lingoplus_font_v1';
 
 export type ThemeMode = 'light' | 'dark';
-export type FontSize = 'sm' | 'md' | 'lg';
-const FONT_PX: Record<FontSize, string> = { sm: '14px', md: '16px', lg: '18px' };
 
 const readKey = (k: string): string | null => { try { return localStorage.getItem(k); } catch { return null; } };
 const writeKey = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } };
@@ -40,10 +37,6 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   // اسپلش ← (فقط بار اول) دو اسلاید معرفی ← برنامه
   const [theme, setTheme] = useState<ThemeMode>(() => (readKey(THEME_KEY) === 'dark' ? 'dark' : 'light'));
-  const [fontSize, setFontSize] = useState<FontSize>(() => {
-    const v = readKey(FONT_KEY);
-    return v === 'sm' || v === 'lg' ? v : 'md';
-  });
   const [stage, setStage] = useState<'splash' | 'onboarding' | 'app'>('splash');
 
   const handleSplashDone = () => setStage(hasSeenOnboarding() ? 'app' : 'onboarding');
@@ -60,10 +53,6 @@ export default function App() {
     writeKey(THEME_KEY, theme);
     setStatusBarTheme(theme === 'dark');
   }, [theme]);
-  useEffect(() => {
-    document.documentElement.style.fontSize = FONT_PX[fontSize];
-    writeKey(FONT_KEY, fontSize);
-  }, [fontSize]);
 
   // برگشت به بالای صفحه با تغییر تب یا درس
   useEffect(() => { window.scrollTo({ top: 0 }); }, [currentTab, selectedLessonId]);
@@ -151,7 +140,7 @@ export default function App() {
       const isNew = !prev.leitnerCards[wordId];
       const currentBox = prev.leitnerCards[wordId]?.box ?? 1;
       const box = remembered ? Math.min(5, currentBox + 1) : 1;
-      const intervalDays = [1, 2, 4, 7, 14][box - 1];
+      const intervalDays = [1, 3, 7, 14, 30][box - 1];
       const due = new Date();
       due.setHours(12, 0, 0, 0);
       due.setDate(due.getDate() + intervalDays);
@@ -207,8 +196,6 @@ export default function App() {
         mistakesCount={progress.mistakes.length}
         theme={theme}
         onToggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
-        fontSize={fontSize}
-        onChangeFontSize={setFontSize}
         dailyGoal={progress.dailyGoal}
         onChangeDailyGoal={handleSetDailyGoal}
         onReplayIntro={() => { setMenuOpen(false); setStage('onboarding'); }}

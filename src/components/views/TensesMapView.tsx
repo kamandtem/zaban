@@ -162,7 +162,7 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
             {/* Pattern 1: ساده */}
             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
               <span className="text-xs font-bold text-indigo-700 block mb-1">
-                ۱. حالت ساده (کارهای همیشگی یا یک‌باره)
+                حالت ساده (کارهای همیشگی یا یک‌باره)
               </span>
               <div dir="ltr" className="flex items-center gap-1 text-xs font-semibold text-slate-700 bg-white p-2 rounded-xl">
                 <span>[فاعل]</span>
@@ -175,7 +175,7 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
             {/* Pattern 2: استمراری */}
             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
               <span className="text-xs font-bold text-emerald-700 block mb-1">
-                ۲. حالت استمراری (در حال انجام بودن)
+                حالت استمراری (در حال انجام بودن)
               </span>
               <div dir="ltr" className="flex items-center gap-1 text-xs font-semibold text-slate-700 bg-white p-2 rounded-xl">
                 <span>[فاعل]</span>
@@ -190,7 +190,7 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
             {/* Pattern 3: کامل */}
             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
               <span className="text-xs font-bold text-purple-700 block mb-1">
-                ۳. حالت کامل (تکمیل شده و بااثر)
+                حالت کامل (تکمیل شده و بااثر)
               </span>
               <div dir="ltr" className="flex items-center gap-1 text-xs font-semibold text-slate-700 bg-white p-2 rounded-xl">
                 <span>[فاعل]</span>
@@ -205,7 +205,7 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
             {/* Pattern 4: کامل استمراری */}
             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
               <span className="text-xs font-bold text-amber-700 block mb-1">
-                ۴. حالت کامل استمراری (تاکید بر مدت زمان)
+                حالت کامل استمراری (تاکید بر مدت زمان)
               </span>
               <div dir="ltr" className="flex items-center gap-1 text-xs font-semibold text-slate-700 bg-white p-2 rounded-xl">
                 <span>[فاعل]</span>
@@ -383,7 +383,7 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
             {activeTense.description}
           </div>
 
-                    {/* ۱) فرمول ساده ساخت جمله */}
+          {/* فرمول ساده ساخت جمله */}
           {simpleFormula && (
             <div className="rounded-2xl p-[1.5px] bg-gradient-to-br from-indigo-400 via-sky-400 to-emerald-400 shadow-sm">
               <div className="bg-white rounded-[14px] px-3 py-3 flex flex-col items-center gap-1.5">
@@ -401,7 +401,7 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
             </div>
           )}
 
-          {/* ۲) کجا به کار می‌رود؟ (آکاردئونی) */}
+          {/* کجا به کار می‌رود؟ (آکاردئونی) */}
           {usages.length > 0 && (
             <div className="rounded-2xl border border-amber-200 bg-amber-50/40 overflow-hidden">
               <button
@@ -450,7 +450,7 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
             <div className="flex flex-col gap-3">
               {/* Positive formula */}
               <FormulaVisualizer
-                titleFa="جمله مثبت"
+                titleFa="جمله‌ی خبری"
                 type="positive"
                 steps={activeTense.formulaSteps.positive}
                 sentenceExample={activeTense.examples[0]}

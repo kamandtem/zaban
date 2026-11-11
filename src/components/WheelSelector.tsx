@@ -8,9 +8,9 @@ interface WheelSelectorProps {
   disabled?: boolean;
 }
 
-const STEP = 46;            // فاصله‌ی عمودی بین دو گزینه (پیکسل)
-const ITEM_H = 48;          // ارتفاع هر گزینه
-const WHEEL_H = 170;        // ارتفاع کل چرخ
+const STEP = 38;            // فاصله‌ی عمودی بین دو گزینه (پیکسل)
+const ITEM_H = 40;          // ارتفاع هر گزینه
+const WHEEL_H = 142;        // ارتفاع کل چرخ
 const DRAG_THRESHOLD = 6;   // کمتر از این مقدار حرکت = «ضربه»، نه کشیدن
 const MASK = 'linear-gradient(to bottom, transparent 0%, #000 28%, #000 72%, transparent 100%)';
 
@@ -189,7 +189,7 @@ export const WheelSelector: React.FC<WheelSelectorProps> = ({
         onPointerCancel={(e) => finishDrag(e, true)}
         onKeyDown={onKeyDown}
         onContextMenu={(e) => e.preventDefault()}
-        className={`relative w-full max-w-[260px] overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 rounded-2xl transition-shadow ${
+        className={`relative w-full max-w-[210px] overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 rounded-2xl transition-shadow ${
           armed ? 'ring-2 ring-indigo-300 bg-indigo-50/30' : ''
         } ${
           disabled ? 'cursor-default' : dragging ? 'cursor-grabbing' : 'cursor-grab'
@@ -230,7 +230,7 @@ export const WheelSelector: React.FC<WheelSelectorProps> = ({
                 style={{
                   top: (WHEEL_H - ITEM_H) / 2,
                   height: ITEM_H,
-                  fontSize: 22,
+                  fontSize: 19,
                   fontWeight: active ? 800 : 600,
                   color: active ? '#4338ca' : '#64748b',
                   opacity,

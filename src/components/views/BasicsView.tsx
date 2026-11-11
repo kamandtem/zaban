@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, CheckCircle2, XCircle, ArrowLeft, Sprout } from 'lucide-react';
+import { ChevronDown, CheckCircle2, XCircle, ArrowLeft, Sprout, BookOpen, UserRound, KeyRound, Home, Type, CircleHelp, Puzzle, Trophy, ArrowLeftRight } from 'lucide-react';
 import { basicsTopics, BasicTopic, BasicFormula } from '../../data/basicsData';
 
 interface BasicsViewProps {
@@ -18,6 +18,10 @@ const toneClass: Record<string, string> = {
 };
 
 const isLatin = (s: string) => /[A-Za-z]/.test(s);
+const topicIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  sentence: BookOpen, pronouns: UserRound, 'possessive-s': KeyRound, 'noun-adjective': Home,
+  articles: Type, 'question-words': CircleHelp, 'making-adjectives': Puzzle, comparison: Trophy,
+};
 
 const FormulaRow: React.FC<{ f: BasicFormula }> = ({ f }) => (
   <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
@@ -47,11 +51,12 @@ const TopicCard: React.FC<{
 }> = ({ topic, index, open, done, onToggle, onDone }) => {
   const [picked, setPicked] = useState<number | null>(null);
   const correct = picked === topic.check.correct;
+  const TopicIcon = topicIcons[topic.id] || ArrowLeftRight;
 
   return (
     <div className={`bg-white rounded-3xl border shadow-xs overflow-hidden transition-all ${open ? 'border-emerald-200 shadow-md' : 'border-slate-100'}`}>
       <button type="button" onClick={onToggle} className="w-full flex items-center gap-3 p-4 text-right">
-        <span className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-xl shrink-0">{topic.emoji}</span>
+        <span className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0"><TopicIcon className="w-5 h-5 text-emerald-700" /></span>
         <div className="flex-1 min-w-0">
           <span className="text-[10px] font-bold text-emerald-600">قدم {(index + 1).toLocaleString('fa-IR')}</span>
           <h4 className="text-sm font-black text-slate-800">{topic.title}</h4>
@@ -73,7 +78,26 @@ const TopicCard: React.FC<{
             ))}
           </ul>
 
-          {topic.table && (
+          {topic.table && topic.id === 'pronouns' ? (
+            <div className="grid grid-cols-2 gap-2.5" dir="ltr">
+              {[topic.table!.rows.slice(0, 3), [topic.table!.rows[3], topic.table!.rows[5], topic.table!.rows[7]]].map((column, colIndex) => (
+                <div key={colIndex} className="flex flex-col gap-2">
+                  {column.map((r) => (
+                    <div key={r[0]} className="rounded-2xl border border-slate-100 bg-slate-50 p-2.5 text-center">
+                      <span className="block text-[10px] text-slate-500" dir="rtl">{r[0]}</span>
+                      <span className="block font-en font-black text-indigo-700 text-sm">{r[1]}</span>
+                      <span className="block text-[10px] text-slate-500 mt-1" dir="rtl">مفعولی: <b dir="ltr">{r[2]}</b> · ملکی: <b dir="ltr">{r[3]}</b> · ضمیر ملکی: <b dir="ltr">{r[4]}</b></span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              <div className="col-span-2 mx-auto w-1/2 rounded-2xl border border-indigo-100 bg-indigo-50 p-2.5 text-center">
+                <span className="block text-[10px] text-slate-500" dir="rtl">آن (شیء یا حیوان)</span>
+                <span className="block font-en font-black text-indigo-700 text-sm">it</span>
+                <span className="block text-[10px] text-slate-500 mt-1" dir="rtl">ملکی: <b dir="ltr">its</b></span>
+              </div>
+            </div>
+          ) : topic.table && (
             <div className="overflow-x-auto no-scrollbar rounded-2xl border border-slate-100">
               <table className="w-full text-xs">
                 <thead className="bg-slate-50">

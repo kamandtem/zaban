@@ -14,7 +14,7 @@ export interface FormulaStep {
 interface FormulaVisualizerProps {
   titleFa: string;
   steps: FormulaStep[];
-  type?: 'positive' | 'negative' | 'question';
+  type?: 'positive' | 'negative' | 'question' | 'request';
   sentenceExample?: {
     en: string;
     fa: string;
@@ -58,6 +58,8 @@ export const FormulaVisualizer: React.FC<FormulaVisualizerProps> = ({
       ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
       : type === 'negative'
       ? 'bg-rose-50 text-rose-800 border-rose-200'
+      : type === 'request'
+      ? 'bg-violet-50 text-violet-800 border-violet-200'
       : 'bg-sky-50 text-sky-800 border-sky-200';
 
   return (
@@ -66,7 +68,7 @@ export const FormulaVisualizer: React.FC<FormulaVisualizerProps> = ({
       <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
         <div className="flex items-center gap-2">
           <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${badgeColor}`}>
-            {type === 'positive' ? 'ساختار مثبت' : type === 'negative' ? 'ساختار منفی' : 'ساختار سوالی'}
+            {type === 'positive' ? 'جمله‌ی خبری' : type === 'negative' ? 'جمله‌ی منفی' : type === 'request' ? 'درخواست محترمانه' : 'جمله‌ی پرسشی'}
           </span>
           <span className="text-xs font-bold text-slate-700">{titleFa}</span>
         </div>
@@ -101,11 +103,6 @@ export const FormulaVisualizer: React.FC<FormulaVisualizerProps> = ({
                     : 'opacity-20 scale-95 translate-y-2 bg-slate-100 border-dashed border-slate-300'
                 }`}
               >
-                {/* Step Number Badge */}
-                <span className="absolute -top-1.5 left-1 w-3.5 h-3.5 rounded-full bg-indigo-600 text-white text-[8px] font-bold flex items-center justify-center font-en">
-                  {idx + 1}
-                </span>
-
                 {/* Persian Role Title */}
                 <span dir="rtl" className="text-[10px] leading-tight font-bold text-slate-800 text-center font-fa break-words w-full">
                   {step.roleFa}
