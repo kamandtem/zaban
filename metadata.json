@@ -1,0 +1,6 @@
+{
+  "name": "آموزش تعاملی زبان انگلیسی | لینگوپلاس",
+  "description": "اپلیکیشن تعاملی آموزش گرامر، ۱۲ زمان و واژگان انگلیسی با چرخ انتخاب هوشمند و رویکرد گام‌به‌گام برای مبتدی‌ها",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
