@@ -154,10 +154,10 @@ export const allLessons: Lesson[] = [
     mainIdea: 'گاهی به‌جای تکرار نام یک شخص یا چیز، از ضمیر فاعلی استفاده می‌کنیم. صفت ملکی هم نشان می‌دهد چیزی متعلق به چه کسی است و پیش از اسم می‌آید؛ مثل my book یعنی کتاب من.',
     persianComparison: 'در فارسی ضمیر «او» برای آقا و خانم و اشیاء یکی است؛ اما در انگلیسی: He برای مرد، She برای زن، و It برای اشیا و حیوانات است. صفت‌های ملکی فارسی چسبان هستند (کتابم، کتابت)، ولی انگلیسی جداست (My book, Your book).',
     formulas: {
-      title: 'جدول انطباق فاعل و مالکیت',
-      positive: 'من ← my | تو/شما ← your | او (مرد) ← his | او (زن) ← her | آن ← its | ما ← our | آن‌ها ← their',
-      negative: 'This is not my pen.',
-      question: 'Is this your car?',
+      title: 'ضمایر و صفت‌های ملکی آن‌ها',
+      positive: 'I → my\nyou → your\nhe → his\nshe → her\nit → its\nwe → our\nthey → their',
+      negative: '',
+      question: '',
       notes: 'دقت کنید: its یعنی «مال آن»، اما it\'s مخفف it is است!'
     },
     examples: [

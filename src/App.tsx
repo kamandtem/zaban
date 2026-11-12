@@ -20,6 +20,8 @@ import { Onboarding } from './components/Onboarding';
 
 const ONBOARD_KEY = 'lingoplus_onboarded_v1';
 const THEME_KEY = 'lingoplus_theme_v1';
+const PROFILE_NAME_KEY = 'lingoplus_profile_name_v1';
+const FONT_SCALE_KEY = 'lingoplus_content_scale_v1';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -37,6 +39,11 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   // اسپلش ← (فقط بار اول) دو اسلاید معرفی ← برنامه
   const [theme, setTheme] = useState<ThemeMode>(() => (readKey(THEME_KEY) === 'dark' ? 'dark' : 'light'));
+  const [displayName, setDisplayName] = useState(() => readKey(PROFILE_NAME_KEY) ?? '');
+  const [fontScale, setFontScale] = useState(() => {
+    const stored = Number(readKey(FONT_SCALE_KEY));
+    return [0.9, 1, 1.1, 1.2].includes(stored) ? stored : 1;
+  });
   const [stage, setStage] = useState<'splash' | 'onboarding' | 'app'>('splash');
 
   const handleSplashDone = () => setStage(hasSeenOnboarding() ? 'app' : 'onboarding');
@@ -155,6 +162,14 @@ export default function App() {
   };
 
   const handleSetDailyGoal = (n: number) => setProgress(prev => ({ ...prev, dailyGoal: n }));
+  const handleChangeDisplayName = (value: string) => {
+    setDisplayName(value);
+    writeKey(PROFILE_NAME_KEY, value);
+  };
+  const handleChangeFontScale = (value: number) => {
+    setFontScale(value);
+    writeKey(FONT_SCALE_KEY, String(value));
+  };
 
   const handleClearMistakes = () => setProgress(prev => ({ ...prev, mistakes: [] }));
   const handleRemoveMistake = (id: string) =>
@@ -198,10 +213,14 @@ export default function App() {
         onToggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
         dailyGoal={progress.dailyGoal}
         onChangeDailyGoal={handleSetDailyGoal}
+        displayName={displayName}
+        onChangeDisplayName={handleChangeDisplayName}
+        fontScale={fontScale}
+        onChangeFontScale={handleChangeFontScale}
         onReplayIntro={() => { setMenuOpen(false); setStage('onboarding'); }}
       />
 
-      <main className="flex-1 w-full pt-1 pb-6">
+      <main className="app-main-content flex-1 w-full pt-1 pb-6" style={{ '--content-scale': fontScale } as React.CSSProperties}>
         {selectedLesson ? (
           <LessonDetailView
             lesson={selectedLesson}

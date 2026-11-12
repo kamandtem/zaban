@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserProgress } from '../../types';
 import {
   RotateCcw,
@@ -9,8 +9,9 @@ import {
   Trash2,
   BookOpen,
   Sparkles,
-  Settings,
-  Compass
+  Compass,
+  AlertTriangle,
+  X,
 } from 'lucide-react';
 
 interface ReviewMistakesViewProps {
@@ -28,6 +29,7 @@ export const ReviewMistakesView: React.FC<ReviewMistakesViewProps> = ({
   onRemoveMistake,
   onResetProgress,
 }) => {
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const accuracy =
     progress.totalExercisesCompleted > 0
       ? Math.round((progress.correctAnswersCount / progress.totalExercisesCompleted) * 100)
@@ -202,16 +204,54 @@ export const ReviewMistakesView: React.FC<ReviewMistakesViewProps> = ({
         </div>
         <button
           type="button"
-          onClick={() => {
-            if (window.confirm('آیا مطمئن هستید که می‌خواهید پیشرفت خود را ریست کنید؟')) {
-              onResetProgress();
-            }
-          }}
+          onClick={() => setShowResetConfirm(true)}
           className="px-3.5 py-2 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-bold rounded-xl transition-colors border border-slate-200"
         >
           ریست آمار
         </button>
       </div>
+
+      {showResetConfirm && (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/55 backdrop-blur-sm p-5"
+          onClick={() => setShowResetConfirm(false)}
+        >
+          <section
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="reset-progress-title"
+            aria-describedby="reset-progress-description"
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-sm rounded-[28px] border border-white/70 bg-white p-5 shadow-[0_24px_80px_rgba(15,23,42,0.3)] animate-scale-up"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="w-12 h-12 shrink-0 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6" />
+                </span>
+                <div>
+                  <h3 id="reset-progress-title" className="text-base font-black text-slate-800">شروع دوباره از ابتدا؟</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">پاک‌کردن همه‌ی آمار و پیشرفت‌ها</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setShowResetConfirm(false)} aria-label="بستن پنجره" className="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 flex items-center justify-center">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p id="reset-progress-description" className="mt-4 rounded-2xl bg-slate-50 p-3 text-sm leading-relaxed text-slate-600">
+              درس‌های گذرانده‌شده، پاسخ‌ها، جعبه‌ی لایتنر و آمار یادگیری پاک می‌شوند. این کار قابل بازگشت نیست.
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setShowResetConfirm(false)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50">
+                انصراف
+              </button>
+              <button type="button" onClick={onResetProgress} className="rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-black text-white shadow-sm hover:bg-rose-700 active:scale-[0.98]">
+                بله، ریست کن
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 };

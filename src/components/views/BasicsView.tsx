@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, CheckCircle2, XCircle, ArrowLeft, Sprout, BookOpen, UserRound, KeyRound, Home, Type, CircleHelp, Puzzle, Trophy, ArrowLeftRight } from 'lucide-react';
+import { ChevronDown, CheckCircle2, XCircle, ArrowLeft, Sprout, BookOpen, UserRound, KeyRound, Home, Type, CircleHelp, Puzzle, Trophy, ArrowLeftRight, ListOrdered } from 'lucide-react';
 import { basicsTopics, BasicTopic, BasicFormula } from '../../data/basicsData';
 
 interface BasicsViewProps {
@@ -19,7 +19,7 @@ const toneClass: Record<string, string> = {
 
 const isLatin = (s: string) => /[A-Za-z]/.test(s);
 const topicIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  sentence: BookOpen, pronouns: UserRound, 'possessive-s': KeyRound, 'noun-adjective': Home,
+  sentence: BookOpen, 'verb-forms': ListOrdered, pronouns: UserRound, 'possessive-s': KeyRound, 'noun-adjective': Home,
   articles: Type, 'question-words': CircleHelp, 'making-adjectives': Puzzle, comparison: Trophy,
 };
 
@@ -44,6 +44,32 @@ const FormulaRow: React.FC<{ f: BasicFormula }> = ({ f }) => (
     </div>
   </div>
 );
+
+const BasicTableView: React.FC<{ topic: BasicTopic }> = ({ topic }) => {
+  if (!topic.table) return null;
+  const table = topic.table;
+  const isVerbForms = topic.id === 'verb-forms';
+  return (
+    <div className="overflow-x-auto no-scrollbar rounded-2xl border border-slate-100">
+      <table dir={isVerbForms ? 'ltr' : undefined} className={`w-full text-xs ${isVerbForms ? 'table-fixed' : ''}`}>
+        <thead className="bg-slate-50">
+          <tr>{table.headers.map((h, hi) => <th key={h} dir={isVerbForms ? 'rtl' : undefined} className={`p-2 font-bold leading-tight ${table.columnTones?.[hi] ?? 'text-slate-500'} ${isVerbForms ? 'text-[10px] whitespace-normal' : 'whitespace-nowrap'}`}>{h}</th>)}</tr>
+        </thead>
+        <tbody>
+          {table.rows.map((r, ri) => (
+            <tr key={ri} className="border-t border-slate-100">
+              {r.map((cell, ci) => (
+                <td key={ci} className={`p-2 text-center ${isVerbForms ? 'break-words' : 'whitespace-nowrap'} ${table.columnTones?.[ci] ? `font-en font-black ${table.columnTones[ci]}` : table.enCols.includes(ci) ? 'font-en font-bold text-indigo-700' : 'text-slate-600'}`}>
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 const TopicCard: React.FC<{
   topic: BasicTopic; index: number; open: boolean; done: boolean;
@@ -97,26 +123,7 @@ const TopicCard: React.FC<{
                 <span className="block text-[10px] text-slate-500 mt-1" dir="rtl">ملکی: <b dir="ltr">its</b></span>
               </div>
             </div>
-          ) : topic.table && (
-            <div className="overflow-x-auto no-scrollbar rounded-2xl border border-slate-100">
-              <table className="w-full text-xs">
-                <thead className="bg-slate-50">
-                  <tr>{topic.table.headers.map(h => <th key={h} className="p-2 font-bold text-slate-500 whitespace-nowrap">{h}</th>)}</tr>
-                </thead>
-                <tbody>
-                  {topic.table.rows.map((r, ri) => (
-                    <tr key={ri} className="border-t border-slate-100">
-                      {r.map((c, ci) => (
-                        <td key={ci} className={`p-2 text-center whitespace-nowrap ${topic.table!.enCols.includes(ci) ? 'font-en font-bold text-indigo-700' : 'text-slate-600'}`}>
-                          {c}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          ) : topic.table && topic.id !== 'verb-forms' ? <BasicTableView topic={topic} /> : null}
 
           {topic.formulas?.map((f, i) => <FormulaRow key={i} f={f} />)}
 
@@ -130,6 +137,8 @@ const TopicCard: React.FC<{
               </div>
             ))}
           </div>
+
+          {topic.id === 'verb-forms' && <BasicTableView topic={topic} />}
 
           {/* یک سوال کوتاه برای اطمینان */}
           <div className="border-2 border-dashed border-emerald-200 rounded-2xl p-3">

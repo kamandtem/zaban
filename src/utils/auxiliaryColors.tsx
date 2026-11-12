@@ -55,6 +55,16 @@ export const auxColorMap: Record<string, AuxColorConfig> = {
   "will not": { bg: 'bg-amber-500 text-white', text: 'text-white', border: 'border-amber-600', badge: 'bg-amber-600 text-white', family: 'will', tense: 'future' },
 };
 
+export const auxTextColor = (verb: string): string => {
+  const config = auxColorMap[verb.trim().toLowerCase()];
+  if (!config) return 'text-slate-700';
+  if (config.tense === 'past') {
+    return config.family === 'be' ? 'text-blue-900' : config.family === 'do' ? 'text-emerald-900' : 'text-purple-900';
+  }
+  if (config.family === 'will') return 'text-amber-800';
+  return config.text;
+};
+
 export const AuxChip: React.FC<{
   verb: string;
   showTenseLabel?: boolean;

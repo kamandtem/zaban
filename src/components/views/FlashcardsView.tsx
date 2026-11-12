@@ -19,11 +19,16 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
   const [flipped, setFlipped] = useState(false);
   const [dragY, setDragY] = useState(0);
   const [sending, setSending] = useState(false);
+  const [entering, setEntering] = useState(false);
   const start = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const card = session[index];
 
-  const next = () => { setIndex(i => Math.min(i + 1, session.length)); setFlipped(false); setDragY(0); setSending(false); };
+  const next = () => {
+    setIndex(i => Math.min(i + 1, session.length));
+    setFlipped(false); setDragY(0); setSending(false); setEntering(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setEntering(false)));
+  };
   const previous = () => { setIndex(i => Math.max(0, i - 1)); setFlipped(false); setDragY(0); };
   const sendCardAway = () => {
     if (sending) return;
@@ -64,10 +69,11 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
         </div>
       </div>
 
-      <div className="relative mx-auto h-[390px] w-full max-w-[370px] px-2 [perspective:1000px]">
-        {[5, 4, 3, 2, 1].map((layer) => <div key={layer} className="absolute inset-x-6 rounded-[32px] border border-slate-200/70 bg-white shadow-md pointer-events-none" style={{ top: -layer * 12, bottom: -layer * 12, transform: `scale(${1 - layer * 0.035})`, opacity: 0.22 + (6 - layer) * 0.11, zIndex: 6 - layer }} />)}
-        <button
-          type="button"
+      <div className="relative mx-auto mt-2 h-[330px] w-full max-w-[310px] px-2 [perspective:1100px]">
+        {[5, 4, 3, 2, 1].map((layer) => <div key={layer} className="absolute inset-x-3 top-0 bottom-2 rounded-[28px] border border-slate-200/80 bg-white shadow-md pointer-events-none" style={{ transform: `scale(${1 - layer * 0.055})`, opacity: 0.16 + (6 - layer) * 0.105, zIndex: 6 - layer }} />)}
+        <div
+          role="button"
+          tabIndex={0}
           aria-label={flipped ? 'روی کارت را نشان بده' : 'معنی کارت را نشان بده'}
           onPointerDown={e => { start.current = { x: e.clientX, y: e.clientY }; swiped.current = false; e.currentTarget.setPointerCapture(e.pointerId); }}
           onPointerMove={e => { if (!start.current) return; const dy = e.clientY - start.current.y; if (Math.abs(dy) > 8) { swiped.current = true; setDragY(dy); } }}
@@ -84,35 +90,35 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
             start.current = null;
           }}
           onClick={() => { if (!swiped.current) setFlipped(v => !v); swiped.current = false; }}
-          className={`absolute inset-x-3 top-0 bottom-4 w-auto rounded-[32px] bg-white border border-slate-100 shadow-[0_24px_55px_rgba(15,23,42,0.22)] p-6 text-center flex flex-col items-center justify-center touch-none select-none z-10 ${sending ? 'pointer-events-none' : ''}`}
-          style={{ transform: sending ? 'translate3d(0,-135%,0) rotate(-9deg) scale(.84)' : `translate3d(0,${dragY}px,0) rotate(${dragY * -0.025}deg) scale(${Math.max(.94, 1 - Math.abs(dragY) / 1400)})`, opacity: sending ? 0 : 1, transition: dragY === 0 || sending ? 'transform 280ms cubic-bezier(.2,.8,.2,1), opacity 240ms ease' : 'none' }}
+          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(v => !v); } }}
+          className={`absolute inset-x-3 top-0 bottom-2 rounded-[28px] bg-transparent touch-none select-none z-10 ${sending ? 'pointer-events-none' : ''}`}
+          style={{ transform: sending ? 'translate3d(0,-135%,0) rotate(-8deg) scale(.84)' : entering ? 'translate3d(0,115%,0) scale(.9)' : `translate3d(0,${dragY}px,0) rotate(${dragY * -0.025}deg) scale(${Math.max(.94, 1 - Math.abs(dragY) / 1400)})`, opacity: sending ? 0 : entering ? 0.45 : 1, transition: dragY === 0 || sending || entering ? 'transform 300ms cubic-bezier(.2,.8,.2,1), opacity 260ms ease' : 'none', transformStyle: 'preserve-3d' }}
         >
-          {!flipped ? (
-            <>
+          <div className="absolute inset-0 rounded-[28px] [transform-style:preserve-3d] transition-transform duration-500 ease-in-out" style={{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
+            <div className="absolute inset-0 rounded-[28px] bg-white border border-slate-100 shadow-[0_24px_55px_rgba(15,23,42,0.22)] p-5 text-center flex flex-col items-center justify-center [backface-visibility:hidden]">
               <span className="text-[11px] font-bold text-indigo-500 bg-indigo-50 px-3 py-1 rounded-full">{card.partOfSpeech}</span>
-              <h3 dir="ltr" className="font-en text-3xl sm:text-4xl font-black text-slate-800 mt-6">{card.word}</h3>
+              <h3 dir="ltr" className="font-en text-2xl sm:text-3xl font-black text-slate-800 mt-4">{card.word}</h3>
               <p className="text-lg font-bold text-violet-700 mt-2">{card.pronunciationFa || ''}</p>
-              <div className="w-full border-t border-slate-100 mt-7 pt-5">
-                <p dir="ltr" className="font-en text-base font-bold text-indigo-700">{card.exampleEn}</p>
-                <p className="text-[11px] text-slate-400 mt-3">برای دیدن معنی کارت را لمس کن</p>
+              <div className="w-full border-t border-slate-100 mt-5 pt-4">
+                <p dir="ltr" className="font-en text-sm font-bold text-indigo-700">{card.exampleEn}</p>
+                <p className="text-[11px] text-slate-400 mt-2">برای دیدن معنی کارت را لمس کن</p>
               </div>
-            </>
-          ) : (
-            <>
+            </div>
+            <div className="absolute inset-0 rounded-[28px] bg-white border border-slate-100 shadow-[0_24px_55px_rgba(15,23,42,0.22)] p-5 text-center flex flex-col items-center justify-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
               <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">معنی واژه</span>
-              <h3 className="text-3xl font-black text-slate-800 mt-6">{card.meaningFa}</h3>
+              <h3 className="text-2xl font-black text-slate-800 mt-4">{card.meaningFa}</h3>
               <p className="text-[11px] text-violet-700 bg-violet-50 px-3 py-1.5 rounded-full mt-2">تاریخ مرور: {progress.leitnerCards[card.id]?.dueDate ? new Date(`${progress.leitnerCards[card.id].dueDate}T12:00:00`).toLocaleDateString('fa-IR') : 'امروز'}</p>
-              <div className="w-full border-t border-slate-100 mt-7 pt-5">
+              <div className="w-full border-t border-slate-100 mt-5 pt-4">
                 <p className="text-xs font-bold text-slate-500 mb-2">معنی جمله</p>
-                <p className="text-base text-slate-700 leading-relaxed">{card.exampleFa}</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{card.exampleFa}</p>
               </div>
               <span className="text-[11px] text-slate-400 mt-5 flex items-center gap-1"><RotateCcw className="w-3 h-3" /> لمس کن تا برگردد</span>
-            </>
-          )}
-        </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center justify-center gap-5">
+      <div className="mt-7 flex items-center justify-center gap-5">
         {flipped ? <>
           <button type="button" onClick={() => rate(false)} className="py-3 px-4 rounded-2xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-black">یادم نبود · خانه ۱</button>
           <button type="button" onClick={() => rate(true)} className="py-3 px-4 rounded-2xl bg-emerald-600 text-white text-xs font-black">یادم بود · خانه بعد</button>

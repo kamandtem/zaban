@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Home, Compass, BookOpen, Layers, RotateCw, BarChart2, Copy,
-  Settings, Code2, Sprout, Moon, Sun, Target, Info, ArrowRight,
+  Settings, Code2, Sprout, Moon, Sun, Target, Info, ArrowRight, UserRound, Type,
 } from 'lucide-react';
 import { MascotAvatar } from './MascotAvatar';
 import type { NavTab } from './BottomNav';
@@ -19,6 +19,10 @@ interface SideMenuProps {
   onToggleTheme: () => void;
   dailyGoal: number;
   onChangeDailyGoal: (n: number) => void;
+  displayName: string;
+  onChangeDisplayName: (name: string) => void;
+  fontScale: number;
+  onChangeFontScale: (scale: number) => void;
   onReplayIntro: () => void;
 }
 
@@ -87,7 +91,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   open, onClose, currentTab, onNavigate,
   points, level, mistakesCount,
   theme, onToggleTheme,
-  dailyGoal, onChangeDailyGoal, onReplayIntro,
+  dailyGoal, onChangeDailyGoal, displayName, onChangeDisplayName,
+  fontScale, onChangeFontScale, onReplayIntro,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const dark = theme === 'dark';
@@ -157,7 +162,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             </div>
             <div>
               <span className="text-xs text-slate-400">روز خوش 👋</span>
-              <p className="text-base font-black text-slate-800">دوست لینگوپلاسی</p>
+              <p className="text-base font-black text-slate-800">{displayName.trim() || 'دوست لینگوپلاسی'}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700">
                   سطح {level.toLocaleString('fa-IR')}
@@ -201,6 +206,36 @@ export const SideMenu: React.FC<SideMenuProps> = ({
               <span>بازگشت به منو</span>
             </button>
             <p className="text-sm font-black text-slate-800 px-1">تنظیمات</p>
+
+            <label className="p-3 rounded-2xl bg-slate-50 flex flex-col gap-2">
+              <span className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                <UserRound className="w-5 h-5 text-slate-400" /><span>نام نمایشی شما</span>
+              </span>
+              <input
+                type="text"
+                dir="rtl"
+                maxLength={24}
+                value={displayName}
+                onChange={e => onChangeDisplayName(e.target.value)}
+                placeholder="نام خودت را بنویس"
+                aria-label="نام نمایشی شما"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+              />
+            </label>
+
+            <div className="p-3 rounded-2xl bg-slate-50 flex flex-col gap-2.5">
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                <Type className="w-5 h-5 text-slate-400" /><span>اندازه‌ی نوشته‌های برنامه</span>
+              </div>
+              <Segmented value={fontScale} onChange={onChangeFontScale}
+                options={[
+                  { v: 0.9, label: 'کوچک' },
+                  { v: 1, label: 'معمولی' },
+                  { v: 1.1, label: 'بزرگ' },
+                  { v: 1.2, label: 'بزرگ‌تر' },
+                ]} />
+              <p className="text-[10px] leading-relaxed text-slate-500">این تنظیم روی محتوای صفحه اثر می‌گذارد و اندازه‌ی نوشته‌های منو را تغییر نمی‌دهد.</p>
+            </div>
 
             <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50">
               {dark ? <Moon className="w-5 h-5 text-indigo-400" /> : <Sun className="w-5 h-5 text-amber-500" />}

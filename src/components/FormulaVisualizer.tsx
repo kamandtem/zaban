@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowRight, Sparkles, Play } from 'lucide-react';
-import { AuxChip } from '../utils/auxiliaryColors';
+import { ArrowRight, Play } from 'lucide-react';
+import { auxTextColor } from '../utils/auxiliaryColors';
 
 export interface FormulaStep {
   roleFa: string; // e.g. "فاعل"
@@ -45,12 +45,12 @@ export const FormulaVisualizer: React.FC<FormulaVisualizerProps> = ({
 
   const roleTone = (role: string) => {
     const value = role.toLowerCase();
-    if (value.includes('فاعل')) return 'bg-sky-50 text-sky-700 border-sky-200';
-    if (value.includes('فعل کمکی') || value.includes('کمکی')) return 'bg-amber-50 text-amber-800 border-amber-200';
-    if (value.includes('فعل')) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    if (value.includes('مفعول')) return 'bg-purple-50 text-purple-700 border-purple-200';
-    if (value.includes('صفت')) return 'bg-pink-50 text-pink-700 border-pink-200';
-    return 'bg-slate-50 text-slate-700 border-slate-200';
+    if (value.includes('فاعل')) return 'text-sky-700';
+    if (value.includes('فعل کمکی') || value.includes('کمکی')) return 'text-amber-700';
+    if (value.includes('فعل')) return 'text-emerald-700';
+    if (value.includes('مفعول')) return 'text-purple-700';
+    if (value.includes('صفت')) return 'text-pink-700';
+    return 'text-slate-700';
   };
 
   const badgeColor =
@@ -89,6 +89,7 @@ export const FormulaVisualizer: React.FC<FormulaVisualizerProps> = ({
       <div
         dir="ltr"
         className="w-full flex items-stretch gap-0.5 py-2 px-0 justify-start"
+        style={{ direction: 'ltr', flexDirection: 'row' }}
       >
         {steps.map((step, idx) => {
           const isVisible = idx < animatedStep;
@@ -97,23 +98,23 @@ export const FormulaVisualizer: React.FC<FormulaVisualizerProps> = ({
             <React.Fragment key={idx}>
               {/* Step Card */}
               <div
-                className={`relative flex-1 basis-0 min-w-0 flex flex-col items-center justify-center px-1 py-2 rounded-xl border transition-all duration-300 ${
-                  isVisible
-                    ? `opacity-100 scale-100 translate-y-0 ${roleTone(step.roleFa)} shadow-xs`
-                    : 'opacity-20 scale-95 translate-y-2 bg-slate-100 border-dashed border-slate-300'
+                className={`relative flex-1 basis-0 min-w-0 flex flex-col items-center justify-center px-1 py-2 transition-all duration-300 ${
+                  isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-20 scale-95 translate-y-2'
                 }`}
               >
                 {/* Persian Role Title */}
-                <span dir="rtl" className="text-[10px] leading-tight font-bold text-slate-800 text-center font-fa break-words w-full">
+                <span dir="rtl" className={`text-[10px] leading-tight font-bold text-center font-fa break-words w-full ${roleTone(step.roleFa)}`}>
                   {step.roleFa}
                 </span>
 
                 {/* Auxiliary colored chip OR normal word */}
                 <div className="mt-1 flex items-center justify-center max-w-full">
                   {step.auxVerb ? (
-                    <AuxChip verb={step.auxVerb} compact />
+                    <span dir="ltr" className={`font-en font-bold text-[11px] leading-tight text-center break-words max-w-full ${auxTextColor(step.auxVerb)}`}>
+                      {step.auxVerb}
+                    </span>
                   ) : (
-                    <span className={`font-en font-bold text-[11px] leading-tight ${roleTone(step.roleFa)} px-1 py-0.5 rounded-md border shadow-2xs text-center break-words max-w-full`}>
+                    <span className={`font-en font-bold text-[11px] leading-tight text-center break-words max-w-full ${roleTone(step.roleFa)}`}>
                       {step.example}
                     </span>
                   )}
@@ -123,7 +124,7 @@ export const FormulaVisualizer: React.FC<FormulaVisualizerProps> = ({
                 {step.noteFa && (
                   <span
                     dir="rtl"
-                    className="text-[9px] leading-tight text-slate-500 font-fa text-center mt-1 bg-white/80 px-0.5 rounded-sm break-words w-full"
+                    className="text-[9px] leading-tight text-slate-500 font-fa text-center mt-1 break-words w-full"
                   >
                     {step.noteFa}
                   </span>

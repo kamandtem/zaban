@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { allTensesData, DetailedTenseInfo, TenseCategory, TenseQuizItem } from '../../data/tensesData';
 import { FormulaVisualizer } from '../FormulaVisualizer';
 import { AuxChip } from '../../utils/auxiliaryColors';
@@ -49,6 +49,14 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
   const isLearned = completedTenses.includes(activeTense.id);
   const usagesOpen = usagesOpenFor === activeTense.id;
   const simpleFormula = simpleFormulas[activeTense.id];
+  const formulaParts = simpleFormula?.split(/\s*\+\s*/) ?? [];
+  const formulaPartTone = (part: string) => {
+    const lower = part.toLowerCase();
+    if (part.includes('فاعل')) return 'text-sky-700';
+    if (/(?:am|is|are|was|were|have|has|had|will|been)/i.test(lower)) return 'text-amber-700';
+    if (part.includes('مفعول') || part.includes('بقیه') || part.includes('مکان') || part.includes('زمان') || part.includes('مدت')) return 'text-purple-700';
+    return 'text-emerald-700';
+  };
 
   // آیکون مرتبط با مفهوم هر زمان (رنگ‌ها همان رنگ‌های قبلی)
   const renderCardIcon = (tenseId: string, badgeColor: string) => (
@@ -386,17 +394,19 @@ export const TensesMapView: React.FC<TensesMapViewProps> = ({
           {/* فرمول ساده ساخت جمله */}
           {simpleFormula && (
             <div className="rounded-2xl p-[1.5px] bg-gradient-to-br from-indigo-400 via-sky-400 to-emerald-400 shadow-sm">
-              <div className="bg-white rounded-[14px] px-3 py-3 flex flex-col items-center gap-1.5">
+              <div className="bg-white rounded-[14px] px-3 py-3 flex flex-col items-start gap-1.5">
                 <span className="text-[11px] font-bold text-indigo-600 flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                   فرمول ساخت جمله
                 </span>
-                <p
-                  dir="ltr"
-                  className="font-en text-[13px] sm:text-base font-black text-slate-800 text-center leading-relaxed break-words max-w-full"
-                >
-                  {simpleFormula}
-                </p>
+                <div dir="ltr" className="font-en w-full flex flex-row flex-wrap items-center justify-start gap-x-1.5 gap-y-1 text-[13px] sm:text-base font-black leading-relaxed max-w-full text-left">
+                  {formulaParts.map((part, index) => (
+                    <Fragment key={`${part}-${index}`}>
+                      {index > 0 && <span className="text-slate-400" aria-hidden="true">+</span>}
+                      <span dir="rtl" className={`text-left ${formulaPartTone(part)}`}>{part}</span>
+                    </Fragment>
+                  ))}
+                </div>
               </div>
             </div>
           )}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lesson, UserProgress } from '../../types';
 import { ExerciseModal } from '../ExerciseModal';
 import { FormulaVisualizer } from '../FormulaVisualizer';
-import { AuxChip } from '../../utils/auxiliaryColors';
+import { auxTextColor } from '../../utils/auxiliaryColors';
 import {
   ArrowRight,
   BookOpen,
@@ -13,15 +13,16 @@ import {
   Bookmark,
   BookmarkCheck,
   Layers,
-  HelpCircle
+  HelpCircle,
+  ChevronDown,
 } from 'lucide-react';
 
 const formulaTone = (part: string) => part === 'فاعل'
-  ? 'bg-sky-100 text-sky-800'
-  : part.includes('فعل کمکی') ? 'bg-amber-100 text-amber-800'
-  : part === 'مفعول' ? 'bg-purple-100 text-purple-800'
-  : part === 'کلمه پرسشی' ? 'bg-pink-100 text-pink-800'
-  : part.includes('فعل') || /^(am|is|are|was|were)$/i.test(part.trim()) ? 'bg-emerald-100 text-emerald-800' : '';
+  ? 'text-sky-700'
+  : part.includes('فعل کمکی') ? 'text-amber-700'
+  : part === 'مفعول' ? 'text-purple-700'
+  : part === 'کلمه پرسشی' ? 'text-pink-700'
+  : part.includes('فعل') || /^(am|is|are|was|were)$/i.test(part.trim()) ? 'text-emerald-700' : '';
 
 const formulaParts = (text: string) => text.split(/(فاعل|مفعول|فعل کمکی|فعل اصلی|شکل ساده فعل|شکل سوم فعل|شکل گذشته فعل|کلمه پرسشی|فعل|\b(?:am|is|are|was|were)\b)/gi);
 
@@ -30,6 +31,20 @@ const breakdownTone = (part: string) => part.includes('فاعل')
   : part.includes('فعل کمکی') || part.includes('کمکی') ? 'text-amber-700'
   : part.includes('مفعول') ? 'text-purple-700'
   : part.includes('فعل') || part.includes(' be ') ? 'text-emerald-700' : 'text-indigo-600';
+
+const AuxText: React.FC<{ verb: string }> = ({ verb }) => (
+  <span dir="ltr" className={`font-en text-xs font-bold ${auxTextColor(verb)}`}>{verb}</span>
+);
+
+const pronounPossessiveRows = [
+  { fa: 'من', pronoun: 'I', possessive: 'my' },
+  { fa: 'تو / شما', pronoun: 'you', possessive: 'your' },
+  { fa: 'او (مرد)', pronoun: 'he', possessive: 'his' },
+  { fa: 'او (زن)', pronoun: 'she', possessive: 'her' },
+  { fa: 'آن (چیز یا حیوان)', pronoun: 'it', possessive: 'its' },
+  { fa: 'ما', pronoun: 'we', possessive: 'our' },
+  { fa: 'آن‌ها', pronoun: 'they', possessive: 'their' },
+];
 
 interface LessonDetailViewProps {
   lesson: Lesson;
@@ -52,6 +67,7 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
   const isCompleted = progress.completedLessons.includes(lesson.id);
   const isWhLesson = lesson.slug === 'question-words';
   const isArticleLesson = lesson.slug === 'articles-a-an-the';
+  const isPronounLesson = lesson.slug === 'pronouns-and-possessives';
 
   const handleExerciseComplete = (correctCount: number, totalCount: number) => {
     if (correctCount >= Math.ceil(totalCount * 0.6)) {
@@ -96,13 +112,13 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
 
       <details className="bg-white rounded-2xl border border-slate-200 shadow-xs group">
         <summary className="cursor-pointer list-none flex items-center justify-between p-4 text-sm font-bold text-slate-800">
-          <span>این درس را ساده یاد بگیریم</span><span className="text-indigo-500 transition-transform group-open:rotate-180">⌄</span>
+          <span>این درس را ساده یاد بگیریم</span><ChevronDown className="w-5 h-5 p-0.5 rounded-full bg-indigo-50 text-indigo-500 transition-transform group-open:rotate-180" strokeWidth={1.5} />
         </summary>
         <p className="px-4 pb-4 text-xs sm:text-sm leading-relaxed text-slate-600">{lesson.mainIdea}</p>
       </details>
       <details className="bg-amber-50/70 rounded-2xl border border-amber-200/80 group">
         <summary className="cursor-pointer list-none flex items-center justify-between p-4 text-sm font-bold text-amber-900">
-          <span>تفاوت این ساختار با فارسی</span><span className="text-amber-700 transition-transform group-open:rotate-180">⌄</span>
+          <span>تفاوت این ساختار با فارسی</span><ChevronDown className="w-5 h-5 p-0.5 rounded-full bg-amber-100/70 text-amber-700 transition-transform group-open:rotate-180" strokeWidth={1.5} />
         </summary>
         <p className="px-4 pb-4 text-xs sm:text-sm leading-relaxed text-amber-950">{lesson.persianComparison}</p>
       </details>
@@ -124,10 +140,10 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
                 خانواده Have (یاسی تا بنفش پررنگ):
               </span>
               <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                <AuxChip verb="have" showTenseLabel />
-                <AuxChip verb="has" showTenseLabel />
+                <AuxText verb="have" />
+                <AuxText verb="has" />
                 <span className="text-slate-400 text-xs">➜ گذشته:</span>
-                <AuxChip verb="had" showTenseLabel />
+                <AuxText verb="had" />
               </div>
             </div>
 
@@ -137,12 +153,12 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
                 خانواده Be (نیلی و آبی تا سرمه‌ای تیره):
               </span>
               <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                <AuxChip verb="am" showTenseLabel />
-                <AuxChip verb="is" showTenseLabel />
-                <AuxChip verb="are" showTenseLabel />
+                <AuxText verb="am" />
+                <AuxText verb="is" />
+                <AuxText verb="are" />
                 <span className="text-slate-400 text-xs">➜ گذشته:</span>
-                <AuxChip verb="was" showTenseLabel />
-                <AuxChip verb="were" showTenseLabel />
+                <AuxText verb="was" />
+                <AuxText verb="were" />
               </div>
             </div>
 
@@ -152,10 +168,10 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
                 خانواده Do (سبز روشن تا یشمی تیره):
               </span>
               <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                <AuxChip verb="do" showTenseLabel />
-                <AuxChip verb="does" showTenseLabel />
+                <AuxText verb="do" />
+                <AuxText verb="does" />
                 <span className="text-slate-400 text-xs">➜ گذشته:</span>
-                <AuxChip verb="did" showTenseLabel />
+                <AuxText verb="did" />
               </div>
             </div>
 
@@ -165,8 +181,8 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
                 نشانه آینده Will (طیف کهربایی):
               </span>
               <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                <AuxChip verb="will" showTenseLabel />
-                <AuxChip verb="won't" showTenseLabel />
+                <AuxText verb="will" />
+                <AuxText verb="won't" />
               </div>
             </div>
           </div>
@@ -177,7 +193,7 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-sm font-bold text-indigo-600 flex items-center gap-2">
-            <span>فرمول جمله‌سازی با رنگ‌بندی</span>
+            <span>{isPronounLesson ? lesson.formulas.title : 'فرمول جمله‌سازی با رنگ‌بندی'}</span>
           </h3>
         </div>
 
@@ -208,36 +224,54 @@ export const LessonDetailView: React.FC<LessonDetailViewProps> = ({
           </>
         ) : (
           <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs flex flex-col gap-2.5">
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
-              <span className="text-[11px] font-bold text-emerald-700 block mb-1">
-                {isWhLesson ? 'الگوی سوال پرسشی:' : isArticleLesson ? 'کاربرد حرف تعریف:' : 'جمله‌ی خبری:'}
-              </span>
-              <p dir="ltr" className="text-xs sm:text-sm font-bold text-slate-800 text-left leading-8 whitespace-pre-line">
-                {formulaParts(lesson.formulas.positive).map((part, i) => {
-                  const tone = formulaTone(part);
-                  return tone ? <span key={i} className={`inline-block mx-0.5 px-2 py-0.5 rounded-lg ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
-                })}
-              </p>
-            </div>
-            {!isWhLesson && !isArticleLesson && <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+            {isPronounLesson ? (
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+                <span className="text-[11px] font-bold text-slate-600 block mb-2">هر ضمیر فاعلی و صفت ملکیِ مربوط به آن</span>
+                <div className="flex flex-col gap-1.5">
+                  {pronounPossessiveRows.map(row => (
+                    <div key={row.pronoun} className="flex items-center justify-between gap-3 rounded-xl bg-white border border-slate-100 px-3 py-2">
+                      <span className="text-xs font-semibold text-slate-600">{row.fa}</span>
+                      <div dir="ltr" className="flex items-center justify-start gap-2 min-w-[132px] font-en font-black text-sm">
+                        <span className="text-sky-700">{row.pronoun}</span>
+                        <ArrowRight className="w-4 h-4 text-slate-400" aria-hidden="true" />
+                        <span className="text-purple-700">{row.possessive}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+                <span className="text-[11px] font-bold text-emerald-700 block mb-1">
+                  {isWhLesson ? 'الگوی سوال پرسشی:' : isArticleLesson ? 'کاربرد حرف تعریف:' : 'جمله‌ی خبری:'}
+                </span>
+                <p dir="ltr" className="text-xs sm:text-sm font-bold text-slate-800 text-left leading-8 whitespace-pre-line">
+                  {formulaParts(lesson.formulas.positive).map((part, i) => {
+                    const tone = formulaTone(part);
+                    return tone ? <span key={i} className={`font-black ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
+                  })}
+                </p>
+              </div>
+            )}
+            {!isWhLesson && !isArticleLesson && !isPronounLesson && <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
               <span className="text-[11px] font-bold text-rose-700 block mb-1">
                 جمله‌ی منفی:
               </span>
               <p dir="ltr" className="text-xs sm:text-sm font-bold text-slate-800 text-left leading-8 whitespace-pre-line">
                 {formulaParts(lesson.formulas.negative).map((part, i) => {
                   const tone = formulaTone(part);
-                  return tone ? <span key={i} className={`inline-block mx-0.5 px-2 py-0.5 rounded-lg ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
+                  return tone ? <span key={i} className={`font-black ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
                 })}
               </p>
             </div>}
-            {!isWhLesson && !isArticleLesson && <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+            {!isWhLesson && !isArticleLesson && !isPronounLesson && <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
               <span className="text-[11px] font-bold text-sky-700 block mb-1">
                 جمله‌ی پرسشی:
               </span>
               <p dir="ltr" className="text-xs sm:text-sm font-bold text-slate-800 text-left leading-8 whitespace-pre-line">
                 {formulaParts(lesson.formulas.question).map((part, i) => {
                   const tone = formulaTone(part);
-                  return tone ? <span key={i} className={`inline-block mx-0.5 px-2 py-0.5 rounded-lg ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
+                  return tone ? <span key={i} className={`font-black ${tone}`}>{part}</span> : <span key={i}>{part}</span>;
                 })}
               </p>
             </div>}
