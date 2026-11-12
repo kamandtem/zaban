@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Home, Compass, BookOpen, Layers, RotateCw, BarChart2, Copy,
-  Settings, Code2, Sprout, Moon, Sun, Target, Info, ArrowRight, UserRound, Type,
+  Settings, Code2, Sprout, Moon, Sun, Target, Info, ArrowRight, UserRound, Type, BellRing, Clock,
 } from 'lucide-react';
 import { MascotAvatar } from './MascotAvatar';
 import type { NavTab } from './BottomNav';
+import type { ReminderPreferences } from '../utils/reminders';
 
 interface SideMenuProps {
   open: boolean;
@@ -23,6 +24,9 @@ interface SideMenuProps {
   onChangeDisplayName: (name: string) => void;
   fontScale: number;
   onChangeFontScale: (scale: number) => void;
+  reminderPreferences: ReminderPreferences;
+  onChangeReminderPreferences: (preferences: ReminderPreferences) => void;
+  reminderMessage: string;
   onReplayIntro: () => void;
 }
 
@@ -92,7 +96,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   points, level, mistakesCount,
   theme, onToggleTheme,
   dailyGoal, onChangeDailyGoal, displayName, onChangeDisplayName,
-  fontScale, onChangeFontScale, onReplayIntro,
+  fontScale, onChangeFontScale, reminderPreferences, onChangeReminderPreferences, reminderMessage, onReplayIntro,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const dark = theme === 'dark';
@@ -235,6 +239,38 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                   { v: 1.2, label: 'بزرگ‌تر' },
                 ]} />
               <p className="text-[10px] leading-relaxed text-slate-500">این تنظیم روی محتوای صفحه اثر می‌گذارد و اندازه‌ی نوشته‌های منو را تغییر نمی‌دهد.</p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-slate-50 flex flex-col gap-3">
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                <BellRing className="w-5 h-5 text-slate-400" /><span>یادآوری‌های روزانه</span>
+              </div>
+              <div className="rounded-xl bg-white border border-slate-100 p-2.5 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <UserRound className="w-4 h-4 text-emerald-600" />
+                  <span className="flex-1 text-xs font-bold text-slate-700">خواندن کلمه‌ی روز</span>
+                  <Toggle on={reminderPreferences.dailyWordEnabled} onClick={() => onChangeReminderPreferences({ ...reminderPreferences, dailyWordEnabled: !reminderPreferences.dailyWordEnabled })} label="یادآوری کلمه‌ی روزانه" />
+                </div>
+                <label className={`flex items-center justify-between gap-2 text-[11px] text-slate-500 ${reminderPreferences.dailyWordEnabled ? '' : 'opacity-50'}`}>
+                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />ساعت یادآوری</span>
+                  <input type="time" dir="ltr" disabled={!reminderPreferences.dailyWordEnabled} value={reminderPreferences.dailyWordTime} onChange={e => onChangeReminderPreferences({ ...reminderPreferences, dailyWordTime: e.target.value })} className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 disabled:cursor-not-allowed" />
+                </label>
+              </div>
+
+              <div className="rounded-xl bg-white border border-slate-100 p-2.5 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-violet-600" />
+                  <span className="flex-1 text-xs font-bold text-slate-700">مرور جعبه‌ی لایتنر</span>
+                  <Toggle on={reminderPreferences.leitnerEnabled} onClick={() => onChangeReminderPreferences({ ...reminderPreferences, leitnerEnabled: !reminderPreferences.leitnerEnabled })} label="یادآوری مرور جعبه‌ی لایتنر" />
+                </div>
+                <label className={`flex items-center justify-between gap-2 text-[11px] text-slate-500 ${reminderPreferences.leitnerEnabled ? '' : 'opacity-50'}`}>
+                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />ساعت یادآوری</span>
+                  <input type="time" dir="ltr" disabled={!reminderPreferences.leitnerEnabled} value={reminderPreferences.leitnerTime} onChange={e => onChangeReminderPreferences({ ...reminderPreferences, leitnerTime: e.target.value })} className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 disabled:cursor-not-allowed" />
+                </label>
+              </div>
+              <p className={`text-[10px] leading-relaxed ${reminderMessage.includes('اجازه') || reminderMessage.includes('گوشی') ? 'text-amber-700' : 'text-slate-500'}`}>
+                {reminderMessage || 'یادآوری لایتنر فقط وقتی کارت سررسیدشده داشته باشی ارسال می‌شود.'}
+              </p>
             </div>
 
             <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50">

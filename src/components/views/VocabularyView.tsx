@@ -20,6 +20,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
   onToggleBookmarkWord,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('همه');
+  const [selectedLevel, setSelectedLevel] = useState<string>('همه');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [onlyBookmarks, setOnlyBookmarks] = useState<boolean>(false);
 
@@ -28,13 +29,14 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
 
   const filteredWords = allVocabulary.filter(w => {
     const matchesCat = selectedCategory === 'همه' || w.category === selectedCategory;
+    const matchesLevel = selectedLevel === 'همه' || w.level === selectedLevel;
     const matchesSearch =
       w.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
       w.meaningFa.includes(searchTerm);
     const matchesBookmark =
       !onlyBookmarks || progress.bookmarkedWords.includes(w.word.toLowerCase());
 
-    return matchesCat && matchesSearch && matchesBookmark;
+    return matchesCat && matchesLevel && matchesSearch && matchesBookmark;
   });
 
   return (
@@ -62,8 +64,19 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
         </div>
       </div>
 
-      {/* Filter Row */}
+      {/* Level filters */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <span className="shrink-0 text-[10px] font-bold text-slate-400">سطح:</span>
+        {['همه', 'A1', 'A2'].map(level => (
+          <button key={level} type="button" onClick={() => setSelectedLevel(level)} className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${selectedLevel === level ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-200'}`}>
+            {level === 'همه' ? 'همه' : level}
+          </button>
+        ))}
+      </div>
+
+      {/* Topic/category filters */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <span className="shrink-0 text-[10px] font-bold text-slate-400">دسته:</span>
         <button
           type="button"
           onClick={() => setOnlyBookmarks(prev => !prev)}
@@ -118,6 +131,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
                     <span className="text-xs text-teal-600 font-semibold mt-0.5 block">
                       {item.partOfSpeech}
                     </span>
+            <span className="inline-flex text-[9px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md mt-1">{item.level ?? 'A1'}</span>
                   </div>
 
                   <div className="flex items-center gap-1">

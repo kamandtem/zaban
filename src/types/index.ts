@@ -78,7 +78,7 @@ export type LessonExercise =
 export interface VocabularyWord {
   id: string;
   word: string;
-  pronunciationFa?: string;
+  level?: 'A1' | 'A2' | 'B1';
   partOfSpeech: string;
   meaningFa: string;
   exampleEn: string;

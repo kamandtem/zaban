@@ -23,6 +23,8 @@ jobs:
       - run: npm run build
       - name: Add Android project (first time only)
         run: if [ ! -d android ]; then npx cap add android; fi
+      - name: Add exact reminder permission
+        run: sed -i '/<application/i\    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />' android/app/src/main/AndroidManifest.xml
       - name: Generate app icon and splash from /assets (لوگوی لینگوپلاس)
         continue-on-error: true
         run: npx --yes @capacitor/assets generate --android

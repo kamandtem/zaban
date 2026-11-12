@@ -17,11 +17,19 @@ import { BasicsView } from './components/views/BasicsView';
 import { setupNative, setStatusBarTheme } from './utils/native';
 import { SplashScreen } from './components/SplashScreen';
 import { Onboarding } from './components/Onboarding';
+import { allVocabulary } from './data/vocabularyData';
+import {
+  parseReminderPreferences,
+  requestReminderAccess,
+  synchronizeReminders,
+} from './utils/reminders';
+import type { ReminderPreferences, ReminderStatus } from './utils/reminders';
 
 const ONBOARD_KEY = 'lingoplus_onboarded_v1';
 const THEME_KEY = 'lingoplus_theme_v1';
 const PROFILE_NAME_KEY = 'lingoplus_profile_name_v1';
 const FONT_SCALE_KEY = 'lingoplus_content_scale_v1';
+const REMINDER_SETTINGS_KEY = 'lingoplus_reminders_v1';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -31,6 +39,8 @@ const writeKey = (k: string, v: string) => { try { localStorage.setItem(k, v); }
 const hasSeenOnboarding = (): boolean => {
   try { return localStorage.getItem(ONBOARD_KEY) === 'yes'; } catch { return false; }
 };
+
+const localDateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
 export default function App() {
   const [progress, setProgress] = useState<UserProgress>(loadUserProgress);
@@ -44,6 +54,10 @@ export default function App() {
     const stored = Number(readKey(FONT_SCALE_KEY));
     return [0.9, 1, 1.1, 1.2].includes(stored) ? stored : 1;
   });
+  const [reminderPreferences, setReminderPreferences] = useState<ReminderPreferences>(() => parseReminderPreferences(readKey(REMINDER_SETTINGS_KEY)));
+  const [reminderStatus, setReminderStatus] = useState<ReminderStatus>('ready');
+  const [reminderMessage, setReminderMessage] = useState('');
+  const [todayKey, setTodayKey] = useState(() => localDateKey(new Date()));
   const [stage, setStage] = useState<'splash' | 'onboarding' | 'app'>('splash');
 
   const handleSplashDone = () => setStage(hasSeenOnboarding() ? 'app' : 'onboarding');
@@ -53,6 +67,26 @@ export default function App() {
   };
 
   useEffect(() => { saveUserProgress(progress); }, [progress]);
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const current = localDateKey(new Date());
+      setTodayKey(previous => previous === current ? previous : current);
+    }, 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    let active = true;
+    synchronizeReminders(reminderPreferences, progress).then(status => {
+      if (!active) return;
+      setReminderStatus(status);
+      if (!reminderPreferences.dailyWordEnabled && !reminderPreferences.leitnerEnabled) setReminderMessage('');
+      else if (status === 'denied') setReminderMessage('اجازه‌ی اعلان‌ها فعال نیست. از تنظیمات گوشی اجازه‌ی اعلان‌های لینگوپلاس را بده.');
+      else if (status === 'unsupported') setReminderMessage('یادآوری دستگاه در نسخه‌ی نصب‌شده‌ی برنامه فعال می‌شود.');
+      else if (status === 'approximate') setReminderMessage('یادآوری‌ها فعال‌اند؛ اگر «هشدارها و یادآورها» در تنظیمات گوشی خاموش باشد، ممکن است کمی دیرتر برسند.');
+      else setReminderMessage('یادآوری‌ها روشن‌اند و در زمان انتخاب‌شده فرستاده می‌شوند.');
+    });
+    return () => { active = false; };
+  }, [reminderPreferences, progress.leitnerCards]);
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     document.documentElement.style.colorScheme = theme;
@@ -170,6 +204,22 @@ export default function App() {
     setFontScale(value);
     writeKey(FONT_SCALE_KEY, String(value));
   };
+  const handleChangeReminderPreferences = async (next: ReminderPreferences) => {
+    const wasEnabled = reminderPreferences.dailyWordEnabled || reminderPreferences.leitnerEnabled;
+    const willBeEnabled = next.dailyWordEnabled || next.leitnerEnabled;
+    if (!wasEnabled && willBeEnabled) {
+      const status = await requestReminderAccess();
+      setReminderStatus(status);
+      if (status === 'denied') {
+        setReminderMessage('برای فعال‌کردن یادآوری‌ها، اجازه‌ی اعلان‌ها را در گوشی فعال کن.');
+        return;
+      }
+      if (status === 'unsupported') setReminderMessage('یادآوری دستگاه در نسخه‌ی نصب‌شده‌ی برنامه فعال می‌شود.');
+      else if (status === 'approximate') setReminderMessage('برای یادآوری دقیق، در صفحه‌ی تنظیمات گوشی «هشدارها و یادآورها» را روشن کن.');
+    }
+    setReminderPreferences(next);
+    writeKey(REMINDER_SETTINGS_KEY, JSON.stringify(next));
+  };
 
   const handleClearMistakes = () => setProgress(prev => ({ ...prev, mistakes: [] }));
   const handleRemoveMistake = (id: string) =>
@@ -195,10 +245,14 @@ export default function App() {
 
   const selectedLesson = allLessons.find(l => l.id === selectedLessonId);
   const activeTab: NavTab = selectedLesson ? 'lessons' : currentTab;
+  const dayDate = new Date(`${todayKey}T12:00:00`);
+  const startOfYear = new Date(dayDate.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((dayDate.getTime() - startOfYear.getTime()) / 86_400_000);
+  const dailyWord = allVocabulary[(dayOfYear - 1) % allVocabulary.length];
 
   return (
     <div className="min-h-screen bg-[#F8F9FE] text-slate-800 flex flex-col font-fa select-text">
-      <Header onOpenMenu={() => setMenuOpen(true)} notifications={notifications} />
+      <Header onOpenMenu={() => setMenuOpen(true)} notifications={notifications} dailyWord={dailyWord} onDailyWordClick={() => goTab('words')} />
 
       <SideMenu
         open={menuOpen}
@@ -217,6 +271,9 @@ export default function App() {
         onChangeDisplayName={handleChangeDisplayName}
         fontScale={fontScale}
         onChangeFontScale={handleChangeFontScale}
+        reminderPreferences={reminderPreferences}
+        onChangeReminderPreferences={next => { void handleChangeReminderPreferences(next); }}
+        reminderMessage={reminderMessage}
         onReplayIntro={() => { setMenuOpen(false); setStage('onboarding'); }}
       />
 

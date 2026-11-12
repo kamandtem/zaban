@@ -13,6 +13,7 @@ export interface BasicTopic {
   points: string[];
   table?: BasicTable;
   formulas?: BasicFormula[];
+  verbForms?: { title: string; tone: string; description: string; exampleEn: string; exampleFa: string }[];
   examples: BasicExample[];
   check: BasicCheck;
 }
@@ -43,13 +44,27 @@ export const basicsTopics: BasicTopic[] = [
     id: 'verb-forms',
     emoji: '🔤',
     title: 'اشکال مختلف فعل',
-    summary: 'بسیاری از فعل‌های انگلیسی سه شکل پرکاربرد دارند: شکل اول برای فعل پایه، شکل دوم برای گذشته و شکل سوم برای بعضی ساختارهای کامل و مجهول.',
+    summary: 'بعضی جمله‌ها به شکل پایه‌ی فعل نیاز دارند و بعضی به شکل گذشته یا شکل سوم. با یک فعل ثابت، فرق سه شکل را راحت‌تر ببین.',
     points: [
-      'شکل اول (V1): شکل پایه‌ی فعل است؛ بعد از I، you، we و they در حال ساده می‌آید. برای he، she و it معمولاً s یا es می‌گیرد: I work. / She works. بعد از to و فعل‌های کمکی مثل can هم شکل پایه می‌آید: She can work.',
-      'شکل دوم (V2): برای کاری که در گذشته تمام شده استفاده می‌شود؛ معمولاً کنار واژه‌هایی مثل yesterday یا last week می‌آید: We went home yesterday.',
-      'شکل سوم (V3): معمولاً بعد از have، has یا had در زمان‌های کامل می‌آید: I have seen it. همچنین در ساختار مجهول بعد از شکل مناسب be می‌آید: The room was cleaned.',
-      'فعل‌های باقاعده معمولاً با افزودن ed شکل دوم و سوم می‌سازند: work → worked → worked. فعل‌های بی‌قاعده شکل‌های متفاوتی دارند؛ چند نمونه را در جدول ببین.',
-      'برای get، شکل سوم در انگلیسی آمریکایی got یا gotten است و در انگلیسی بریتانیایی معمولاً got می‌آید. نوشتار هر سه شکل فعل read یکسان است.',
+      'فعل باقاعده معمولاً به هر دو شکل دوم و سوم ed می‌گیرد: work → worked → worked. فعل بی‌قاعده شکل‌های خودش را دارد؛ مثل eat → ate → eaten.',
+      'در انگلیسی آمریکایی، شکل سوم get می‌تواند got یا gotten باشد؛ در انگلیسی بریتانیایی معمولاً got می‌آید. سه شکل read نوشتار یکسانی دارند.',
+    ],
+    verbForms: [
+      {
+        title: 'شکل اول فعل (V1)', tone: 'text-emerald-700',
+        description: 'شکل پایه‌ی فعل است. در حال ساده بعد از I، you، we و they می‌آید؛ برای he، she و it معمولاً s یا es می‌گیرد. بعد از to و فعل کمکی can هم شکل پایه می‌آید.',
+        exampleEn: 'I eat an apple every day.', exampleFa: 'من هر روز یک سیب می‌خورم.',
+      },
+      {
+        title: 'شکل دوم فعل (V2)', tone: 'text-emerald-800',
+        description: 'برای کاری می‌آید که در گذشته انجام شده و تمام شده است. واژه‌هایی مثل yesterday و last week اغلب به تشخیص آن کمک می‌کنند.',
+        exampleEn: 'I ate an apple yesterday.', exampleFa: 'من دیروز یک سیب خوردم.',
+      },
+      {
+        title: 'شکل سوم فعل (V3)', tone: 'text-emerald-950',
+        description: 'در زمان‌های کامل بعد از have، has یا had می‌آید. در جمله‌ی مجهول هم بعد از شکل مناسب فعل be استفاده می‌شود.',
+        exampleEn: 'I have eaten an apple.', exampleFa: 'من یک سیب خورده‌ام.',
+      },
     ],
     table: {
       headers: ['شکل اول فعل (V1)', 'شکل دوم فعل (V2)', 'شکل سوم فعل (V3)'],
@@ -78,11 +93,7 @@ export const basicsTopics: BasicTopic[] = [
       enCols: [0, 1, 2],
       columnTones: ['text-emerald-700', 'text-emerald-800', 'text-emerald-950'],
     },
-    examples: [
-      { en: 'I work at home.', fa: 'من در خانه کار می‌کنم. شکل اول: work.' },
-      { en: 'I went to school yesterday.', fa: 'من دیروز به مدرسه رفتم. شکل دوم: went.' },
-      { en: 'She has eaten lunch.', fa: 'او ناهار خورده است. شکل سوم: eaten.' },
-    ],
+    examples: [],
     check: {
       question: 'بعد از have در جمله‌ی I have ___ the film، کدام شکل درست است؟',
       sentence: 'I have ___ the film.',

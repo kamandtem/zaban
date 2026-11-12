@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bell, Flame, Target, RotateCcw } from 'lucide-react';
 import { MascotAvatar } from './MascotAvatar';
+import type { VocabularyWord } from '../types';
 
 export interface AppNotification {
   id: string;
@@ -13,6 +14,8 @@ export interface AppNotification {
 interface HeaderProps {
   onOpenMenu: () => void;
   notifications: AppNotification[];
+  dailyWord: VocabularyWord;
+  onDailyWordClick: () => void;
 }
 
 const toneIcon = {
@@ -22,7 +25,7 @@ const toneIcon = {
 };
 
 // هدر شناور (الگوبرداری از طرح مرجع)
-export const Header: React.FC<HeaderProps> = ({ onOpenMenu, notifications }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenMenu, notifications, dailyWord, onDailyWordClick }) => {
   const [openNotif, setOpenNotif] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
 
@@ -67,18 +70,28 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMenu, notifications }) => 
             className="relative w-12 h-12 rounded-2xl bg-slate-100/80 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"
           >
             <Bell className="w-5 h-5" />
-            {notifications.length > 0 && (
+              {notifications.length + 1 > 0 && (
               <span className="absolute -top-1 -left-1 min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[11px] font-black flex items-center justify-center border-2 border-white">
-                {notifications.length.toLocaleString('fa-IR')}
+                {(notifications.length + 1).toLocaleString('fa-IR')}
               </span>
             )}
           </button>
 
           {openNotif && (
-            <div className="absolute left-0 top-14 w-72 bg-white rounded-3xl shadow-[0_20px_50px_rgba(15,23,42,0.15)] border border-slate-100 p-2 animate-scale-up origin-top-left">
-              <p className="text-xs font-black text-slate-700 px-2 py-1.5">اعلان‌ها</p>
+            <div className="absolute left-0 top-14 w-72 max-h-[80vh] overflow-y-auto bg-white rounded-3xl shadow-[0_20px_50px_rgba(15,23,42,0.15)] border border-slate-100 p-2 animate-scale-up origin-top-left">
+              <p className="text-xs font-black text-slate-700 px-2 py-1.5">اعلان‌ها و کلمه‌ی امروز</p>
+              <button type="button" onClick={() => { setOpenNotif(false); onDailyWordClick(); }} className="w-full text-right p-3 rounded-2xl bg-emerald-50/80 border border-emerald-100 hover:bg-emerald-50">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-bold text-emerald-700">کلمه‌ی امروز</span>
+                  <span className="text-[9px] font-black text-emerald-700 bg-white px-1.5 py-0.5 rounded-full">{dailyWord.level ?? 'A1'}</span>
+                </div>
+                <span dir="ltr" className="block font-en text-base font-black text-slate-800 text-left mt-1">{dailyWord.word}</span>
+                <span className="block text-xs font-bold text-slate-700 mt-0.5">{dailyWord.meaningFa}</span>
+                <span dir="ltr" className="block font-en text-[10px] text-indigo-700 text-left leading-tight mt-2 line-clamp-1">{dailyWord.exampleEn}</span>
+                <span className="block text-[10px] text-slate-500 text-right leading-tight mt-0.5 line-clamp-1">{dailyWord.exampleFa}</span>
+              </button>
               {notifications.length === 0 ? (
-                <p className="text-xs text-slate-400 px-2 py-4 text-center">فعلاً خبری نیست ✨</p>
+                <p className="text-[10px] text-slate-400 px-2 py-3 text-center">اعلان دیگری فعلاً نداری.</p>
               ) : (
                 notifications.map(n => (
                   <button

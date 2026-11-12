@@ -49,9 +49,10 @@ const BasicTableView: React.FC<{ topic: BasicTopic }> = ({ topic }) => {
   if (!topic.table) return null;
   const table = topic.table;
   const isVerbForms = topic.id === 'verb-forms';
+  const isPronouns = topic.id === 'pronouns';
   return (
     <div className="overflow-x-auto no-scrollbar rounded-2xl border border-slate-100">
-      <table dir={isVerbForms ? 'ltr' : undefined} className={`w-full text-xs ${isVerbForms ? 'table-fixed' : ''}`}>
+      <table dir={isVerbForms ? 'ltr' : undefined} className={`w-full text-xs ${isVerbForms ? 'table-fixed' : ''} ${isPronouns ? 'min-w-[560px]' : ''}`}>
         <thead className="bg-slate-50">
           <tr>{table.headers.map((h, hi) => <th key={h} dir={isVerbForms ? 'rtl' : undefined} className={`p-2 font-bold leading-tight ${table.columnTones?.[hi] ?? 'text-slate-500'} ${isVerbForms ? 'text-[10px] whitespace-normal' : 'whitespace-nowrap'}`}>{h}</th>)}</tr>
         </thead>
@@ -95,35 +96,37 @@ const TopicCard: React.FC<{
         <div className="px-4 pb-4 flex flex-col gap-3 animate-fade-in">
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{topic.summary}</p>
 
-          <ul className="flex flex-col gap-1.5">
-            {topic.points.map((pt, i) => (
-              <li key={i} className="flex gap-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0" />
-                <span>{pt}</span>
-              </li>
-            ))}
-          </ul>
-
-          {topic.table && topic.id === 'pronouns' ? (
-            <div className="grid grid-cols-2 gap-2.5" dir="ltr">
-              {[topic.table!.rows.slice(0, 3), [topic.table!.rows[3], topic.table!.rows[5], topic.table!.rows[7]]].map((column, colIndex) => (
-                <div key={colIndex} className="flex flex-col gap-2">
-                  {column.map((r) => (
-                    <div key={r[0]} className="rounded-2xl border border-slate-100 bg-slate-50 p-2.5 text-center">
-                      <span className="block text-[10px] text-slate-500" dir="rtl">{r[0]}</span>
-                      <span className="block font-en font-black text-indigo-700 text-sm">{r[1]}</span>
-                      <span className="block text-[10px] text-slate-500 mt-1" dir="rtl">مفعولی: <b dir="ltr">{r[2]}</b> · ملکی: <b dir="ltr">{r[3]}</b> · ضمیر ملکی: <b dir="ltr">{r[4]}</b></span>
-                    </div>
-                  ))}
+          {topic.verbForms && (
+            <div className="flex flex-col gap-2">
+              {topic.verbForms.map(form => (
+                <div key={form.title} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-2xs">
+                  <h5 className={`text-sm font-black ${form.tone}`}>{form.title}</h5>
+                  <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-600">{form.description}</p>
+                  <div className="mt-2 rounded-xl bg-slate-50 p-2.5">
+                    <span className="block text-[10px] font-bold text-slate-400 mb-1">مثال با فعل eat</span>
+                    <p dir="ltr" className={`font-en text-sm font-black text-left ${form.tone}`}>{form.exampleEn}</p>
+                    <p className="mt-0.5 text-[11px] text-slate-500">{form.exampleFa}</p>
+                  </div>
                 </div>
               ))}
-              <div className="col-span-2 mx-auto w-1/2 rounded-2xl border border-indigo-100 bg-indigo-50 p-2.5 text-center">
-                <span className="block text-[10px] text-slate-500" dir="rtl">آن (شیء یا حیوان)</span>
-                <span className="block font-en font-black text-indigo-700 text-sm">it</span>
-                <span className="block text-[10px] text-slate-500 mt-1" dir="rtl">ملکی: <b dir="ltr">its</b></span>
-              </div>
             </div>
-          ) : topic.table && topic.id !== 'verb-forms' ? <BasicTableView topic={topic} /> : null}
+          )}
+
+          {topic.points.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              {topic.verbForms && <h5 className="text-xs font-black text-slate-700">چند نکته‌ی کاربردی</h5>}
+              <ul className="flex flex-col gap-1.5">
+                {topic.points.map((pt, i) => (
+                  <li key={i} className="flex gap-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                    <span>{pt}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {topic.table && topic.id !== 'verb-forms' ? <BasicTableView topic={topic} /> : null}
 
           {topic.formulas?.map((f, i) => <FormulaRow key={i} f={f} />)}
 

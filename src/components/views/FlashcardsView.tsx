@@ -98,8 +98,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
             <div className="absolute inset-0 rounded-[28px] bg-white border border-slate-100 shadow-[0_24px_55px_rgba(15,23,42,0.22)] p-5 text-center flex flex-col items-center justify-center [backface-visibility:hidden]">
               <span className="text-[11px] font-bold text-indigo-500 bg-indigo-50 px-3 py-1 rounded-full">{card.partOfSpeech}</span>
               <h3 dir="ltr" className="font-en text-2xl sm:text-3xl font-black text-slate-800 mt-4">{card.word}</h3>
-              <p className="text-lg font-bold text-violet-700 mt-2">{card.pronunciationFa || ''}</p>
-              <div className="w-full border-t border-slate-100 mt-5 pt-4">
+              <div className="w-full border-t border-slate-100 mt-4 pt-4">
                 <p dir="ltr" className="font-en text-sm font-bold text-indigo-700">{card.exampleEn}</p>
                 <p className="text-[11px] text-slate-400 mt-2">برای دیدن معنی کارت را لمس کن</p>
               </div>
