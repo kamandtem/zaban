@@ -7,7 +7,9 @@ import {
   BookmarkCheck,
   Search,
   Sparkles,
-  BookOpen
+  BookOpen,
+  ChevronDown,
+  X,
 } from 'lucide-react';
 
 interface VocabularyViewProps {
@@ -23,6 +25,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
   const [selectedLevel, setSelectedLevel] = useState<string>('همه');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [onlyBookmarks, setOnlyBookmarks] = useState<boolean>(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Extract unique categories
   const categories = ['همه', ...Array.from(new Set(allVocabulary.map(w => w.category)))];
@@ -43,13 +46,19 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
     <div className="flex flex-col gap-4 pb-24 px-4 max-w-2xl mx-auto animate-fade-in">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 rounded-3xl p-5 text-white shadow-lg relative overflow-hidden">
-        <span className="inline-block text-[11px] font-bold bg-white/20 px-2.5 py-0.5 rounded-full mb-1">
-          واژگان کاربردی روزمره
-        </span>
-        <h2 className="text-xl sm:text-2xl font-black">جعبه لغات پرکاربرد</h2>
-        <p className="text-xs sm:text-sm text-teal-100 mt-1 leading-relaxed">
-          کلمات را در قالب جمله‌های ساده یاد بگیر، نه صرفاً به شکل حفظی!
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-xl sm:text-2xl font-black">واژگان روزمره</h2>
+          <span className="text-[10px] font-bold bg-white/20 px-2.5 py-1 rounded-full">۳۶۵ واژه</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <button type="button" onClick={() => setFiltersOpen(true)} className="flex items-center justify-between gap-2 rounded-xl bg-white/15 border border-white/25 px-3 py-2 text-xs font-bold text-white">
+            <span>سطح: {selectedLevel === 'همه' ? 'همه' : selectedLevel}</span><ChevronDown className="w-4 h-4 shrink-0" />
+          </button>
+          <button type="button" onClick={() => setFiltersOpen(true)} className="flex items-center justify-between gap-2 rounded-xl bg-white/15 border border-white/25 px-3 py-2 text-xs font-bold text-white">
+            <span className="truncate">دسته: {onlyBookmarks ? 'نشان‌شده‌ها' : selectedCategory}</span><ChevronDown className="w-4 h-4 shrink-0" />
+          </button>
+        </div>
 
         {/* Search */}
         <div className="mt-4 relative">
@@ -64,50 +73,39 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
         </div>
       </div>
 
-      {/* Level filters */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-        <span className="shrink-0 text-[10px] font-bold text-slate-400">سطح:</span>
-        {['همه', 'A1', 'A2'].map(level => (
-          <button key={level} type="button" onClick={() => setSelectedLevel(level)} className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${selectedLevel === level ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-200'}`}>
-            {level === 'همه' ? 'همه' : level}
-          </button>
-        ))}
-      </div>
-
-      {/* Topic/category filters */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-        <span className="shrink-0 text-[10px] font-bold text-slate-400">دسته:</span>
-        <button
-          type="button"
-          onClick={() => setOnlyBookmarks(prev => !prev)}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
-            onlyBookmarks
-              ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
-              : 'bg-white text-slate-600 border-slate-200'
-          }`}
-        >
-          <Bookmark className="w-3.5 h-3.5" />
-          <span>نشان‌شده‌ها ({progress.bookmarkedWords.length})</span>
-        </button>
-
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => {
-              setSelectedCategory(cat);
-              setOnlyBookmarks(false);
-            }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
-              !onlyBookmarks && selectedCategory === cat
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
-                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+      {filtersOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4" role="presentation" onClick={() => setFiltersOpen(false)}>
+          <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]" />
+          <section role="dialog" aria-modal="true" aria-label="انتخاب سطح و دسته‌ی واژگان" onClick={e => e.stopPropagation()} className="relative z-10 w-full max-w-md max-h-[82vh] overflow-hidden rounded-3xl bg-white shadow-2xl animate-scale-up">
+            <div className="flex items-center justify-between border-b border-slate-100 p-4">
+              <div><h3 className="text-base font-black text-slate-800">فیلتر واژگان</h3><p className="mt-0.5 text-[11px] text-slate-500">سطح و دسته‌ی دلخواهت را انتخاب کن.</p></div>
+              <button type="button" onClick={() => setFiltersOpen(false)} aria-label="بستن پنجره" className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="max-h-[calc(82vh-76px)] overflow-y-auto p-4">
+              <p className="mb-2 text-xs font-black text-slate-600">سطح زبان</p>
+              <div className="grid grid-cols-3 gap-2">
+                {['همه', 'A1', 'A2'].map(level => (
+                  <button key={level} type="button" onClick={() => setSelectedLevel(level)} className={`rounded-xl border px-3 py-2 text-xs font-bold ${selectedLevel === level ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>
+                    {level === 'همه' ? 'همه‌ی سطح‌ها' : level}
+                  </button>
+                ))}
+              </div>
+              <p className="mb-2 mt-5 text-xs font-black text-slate-600">دسته‌ی واژگان</p>
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map(cat => (
+                  <button key={cat} type="button" onClick={() => { setSelectedCategory(cat); setOnlyBookmarks(false); }} className={`rounded-xl border px-3 py-2 text-right text-xs font-bold ${!onlyBookmarks && selectedCategory === cat ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <button type="button" onClick={() => setOnlyBookmarks(value => !value)} className={`mt-3 flex w-full items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-bold ${onlyBookmarks ? 'border-amber-500 bg-amber-500 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>
+                <Bookmark className="h-4 w-4" /> واژه‌های نشان‌شده ({progress.bookmarkedWords.length})
+              </button>
+              <button type="button" onClick={() => setFiltersOpen(false)} className="mt-4 w-full rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-700">نمایش {filteredWords.length.toLocaleString('fa-IR')} واژه</button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {/* Vocabulary Cards List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -123,15 +121,15 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
                 {/* Top: Word & Actions */}
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div dir="ltr" className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                       <h4 dir="ltr" className="font-en text-base sm:text-lg font-black text-slate-800">
                         {item.word}
                       </h4>
+                      <span dir="rtl" className="text-[11px] font-semibold text-teal-700">{item.pronunciationFa}</span>
                     </div>
                     <span className="text-xs text-teal-600 font-semibold mt-0.5 block">
                       {item.partOfSpeech}
                     </span>
-            <span className="inline-flex text-[9px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md mt-1">{item.level ?? 'A1'}</span>
                   </div>
 
                   <div className="flex items-center gap-1">

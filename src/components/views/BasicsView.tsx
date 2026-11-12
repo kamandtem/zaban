@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, CheckCircle2, XCircle, ArrowLeft, Sprout, BookOpen, UserRound, KeyRound, Home, Type, CircleHelp, Puzzle, Trophy, ArrowLeftRight, ListOrdered } from 'lucide-react';
+import { ChevronDown, CheckCircle2, XCircle, ArrowLeft, Sprout, BookOpen, UserRound, KeyRound, Home, Type, CircleHelp, Puzzle, Trophy, ArrowLeftRight, ListOrdered, Boxes, MapPin } from 'lucide-react';
 import { basicsTopics, BasicTopic, BasicFormula } from '../../data/basicsData';
 
 interface BasicsViewProps {
@@ -20,8 +20,12 @@ const toneClass: Record<string, string> = {
 const isLatin = (s: string) => /[A-Za-z]/.test(s);
 const topicIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   sentence: BookOpen, 'verb-forms': ListOrdered, pronouns: UserRound, 'possessive-s': KeyRound, 'noun-adjective': Home,
+  'nouns-countability': Boxes, prepositions: MapPin,
   articles: Type, 'question-words': CircleHelp, 'making-adjectives': Puzzle, comparison: Trophy,
 };
+
+const basicsOrder = ['sentence', 'pronouns', 'nouns-countability', 'articles', 'prepositions', 'verb-forms', 'noun-adjective', 'possessive-s', 'question-words', 'making-adjectives', 'comparison'];
+const orderedBasicsTopics = [...basicsTopics].sort((a, b) => basicsOrder.indexOf(a.id) - basicsOrder.indexOf(b.id));
 
 const FormulaRow: React.FC<{ f: BasicFormula }> = ({ f }) => (
   <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
@@ -183,9 +187,9 @@ const TopicCard: React.FC<{
 };
 
 export const BasicsView: React.FC<BasicsViewProps> = ({ completedBasics, onCompleteTopic, onGoNext }) => {
-  const [openId, setOpenId] = useState<string | null>(basicsTopics[0].id);
-  const doneCount = basicsTopics.filter(t => completedBasics.includes(t.id)).length;
-  const allDone = doneCount === basicsTopics.length;
+  const [openId, setOpenId] = useState<string | null>(orderedBasicsTopics[0].id);
+  const doneCount = orderedBasicsTopics.filter(t => completedBasics.includes(t.id)).length;
+  const allDone = doneCount === orderedBasicsTopics.length;
 
   return (
     <div className="flex flex-col gap-4 pb-36 px-4 max-w-2xl mx-auto animate-fade-in">
@@ -197,14 +201,14 @@ export const BasicsView: React.FC<BasicsViewProps> = ({ completedBasics, onCompl
           قبل از زمان‌ها، این چند تا نکته‌ی ساده رو یاد بگیر تا بقیه درس‌ها راحت‌تر بشه.
         </p>
         <div className="mt-3 h-2 bg-white/20 rounded-full overflow-hidden">
-          <div className="h-full bg-white rounded-full transition-all" style={{ width: `${(doneCount / basicsTopics.length) * 100}%` }} />
+          <div className="h-full bg-white rounded-full transition-all" style={{ width: `${(doneCount / orderedBasicsTopics.length) * 100}%` }} />
         </div>
         <span className="text-[11px] text-emerald-50 mt-1 block">
-          {doneCount.toLocaleString('fa-IR')} از {basicsTopics.length.toLocaleString('fa-IR')} قدم
+          {doneCount.toLocaleString('fa-IR')} از {orderedBasicsTopics.length.toLocaleString('fa-IR')} قدم
         </span>
       </div>
 
-      {basicsTopics.map((t, i) => (
+      {orderedBasicsTopics.map((t, i) => (
         <TopicCard
           key={t.id}
           topic={t}

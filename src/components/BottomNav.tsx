@@ -1,7 +1,7 @@
 import React from 'react';
-import { Home, Compass, BookOpen, Layers, Plus } from 'lucide-react';
+import { Home, Compass, BookOpen, Layers, NotebookPen } from 'lucide-react';
 
-export type NavTab = 'home' | 'basics' | 'tenses' | 'wheel' | 'lessons' | 'words' | 'flashcards' | 'review';
+export type NavTab = 'home' | 'basics' | 'tenses' | 'wheel' | 'lessons' | 'words' | 'flashcards' | 'review' | 'spelling';
 
 interface BottomNavProps {
   currentTab: NavTab;
@@ -16,7 +16,7 @@ const navItems: { id: NavTab; label: string; icon: React.ComponentType<{ classNa
   { id: 'words', label: 'واژگان', icon: Layers },
 ];
 
-// نوبار پایین: کپسول شناور + دکمه گرد «+» برای شروع سریع تمرین
+// نوبار پایین: کپسول شناور + دکمه‌ی آزمون
 export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange }) => {
   return (
     <nav
@@ -51,12 +51,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
         <button
           type="button"
           onClick={() => onTabChange('wheel')}
-          aria-label="شروع تمرین"
+          aria-label="شروع آزمون"
           className={`w-16 h-16 shrink-0 rounded-full bg-gradient-to-br from-[#FF7A7A] to-[#F43F5E] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(244,63,94,0.45)] active:scale-90 transition-transform ${
             currentTab === 'wheel' ? 'ring-4 ring-rose-200' : ''
           }`}
         >
-          <Plus className="w-7 h-7 stroke-[2.2]" />
+          <NotebookPen className="w-7 h-7 stroke-[2.2]" />
         </button>
       </div>
     </nav>

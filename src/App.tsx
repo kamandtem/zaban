@@ -12,6 +12,7 @@ import { LessonDetailView } from './components/views/LessonDetailView';
 import { WheelArenaView } from './components/views/WheelArenaView';
 import { VocabularyView } from './components/views/VocabularyView';
 import { FlashcardsView } from './components/views/FlashcardsView';
+import { SpellingView } from './components/views/SpellingView';
 import { ReviewMistakesView } from './components/views/ReviewMistakesView';
 import { BasicsView } from './components/views/BasicsView';
 import { setupNative, setStatusBarTheme } from './utils/native';
@@ -316,6 +317,7 @@ export default function App() {
               <VocabularyView progress={progress} onToggleBookmarkWord={handleToggleBookmarkWord} />
             )}
             {currentTab === 'flashcards' && <FlashcardsView progress={progress} onRateWord={handleRateFlashcard} />}
+            {currentTab === 'spelling' && <SpellingView progress={progress} onGoToCards={() => goTab('flashcards')} />}
             {currentTab === 'review' && (
               <ReviewMistakesView
                 progress={progress}

@@ -70,7 +70,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
       </div>
 
       <div className="relative mx-auto mt-2 h-[330px] w-full max-w-[310px] px-2 [perspective:1100px]">
-        {[5, 4, 3, 2, 1].map((layer) => <div key={layer} className="absolute inset-x-3 top-0 bottom-2 rounded-[28px] border border-slate-200/80 bg-white shadow-md pointer-events-none" style={{ transform: `scale(${1 - layer * 0.055})`, opacity: 0.16 + (6 - layer) * 0.105, zIndex: 6 - layer }} />)}
+        {[5, 4, 3, 2, 1].map((layer) => <div key={layer} className="absolute inset-x-3 top-0 bottom-2 rounded-[28px] border border-slate-200/80 bg-white shadow-md pointer-events-none" style={{ transform: `translateY(${(5 - layer) * 4}px) rotate(${layer % 2 === 0 ? 1.1 : -1.1}deg) scale(${1 - layer * 0.055})`, opacity: 0.16 + (6 - layer) * 0.105, zIndex: 6 - layer }} />)}
         <div
           role="button"
           tabIndex={0}

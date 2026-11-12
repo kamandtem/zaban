@@ -79,6 +79,7 @@ export interface VocabularyWord {
   id: string;
   word: string;
   level?: 'A1' | 'A2' | 'B1';
+  pronunciationFa?: string;
   partOfSpeech: string;
   meaningFa: string;
   exampleEn: string;

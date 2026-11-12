@@ -1,11 +1,21 @@
 import type { VocabularyWord } from '../types';
 
 type Level = 'A1' | 'A2';
+const pronunciationByWord: Record<string, string> = {
+  bathroom: 'بَث‌روم', bedroom: 'بِدروم', garden: 'گاردِن', sofa: 'سوفا', television: 'تِلِویژِن', computer: 'کِمپیوتِر', clock: 'کلاک', mirror: 'میرِر', bed: 'بِد', wall: 'وال', floor: 'فلور', key: 'کی', map: 'مَپ', photo: 'فوتو', clothes: 'کْلوز', shoes: 'شوز', shirt: 'شِرت', coat: 'کوت', hat: 'هَت', socks: 'ساکس',
+  money: 'مانی', ticket: 'تیکِت', bank: 'بَنگک', market: 'مارکِت', supermarket: 'سوپِرمارکِت', cafe: 'کَفِی', restaurant: 'رِستِرانت', hotel: 'هوتِل', airport: 'اِرپورت', station: 'اِستِیشِن', train: 'ترِین', plane: 'پلِین', taxi: 'تَکسی', bicycle: 'بایسیکِل', road: 'رود', bridge: 'بْریج', country: 'کانتری', village: 'ویلیج', river: 'ریوِر', sea: 'سی', mountain: 'ماونتِن', tree: 'تری', flower: 'فلاوِر', grass: 'گْرَس', snow: 'اِسنو', cloud: 'کلاود',
+  body: 'بادی', head: 'هِد', face: 'فِیس', eye: 'آی', ear: 'ایِر', mouth: 'ماوث', hand: 'هَند', foot: 'فوت', heart: 'هارت', egg: 'اِگ', meat: 'میت', potato: 'پِتِیتو', tomato: 'تِمِیتو', sugar: 'شوگِر',
+  teach: 'تیچ', learn: 'لِرن', wait: 'وِیت', meet: 'میت', choose: 'چوز', drive: 'درایو', travel: 'تْرَوِل', stay: 'اِستِی', leave: 'لیو', arrive: 'اِرایو', pay: 'پِی', send: 'سِند', show: 'شو', put: 'پوت', sit: 'سیت', stand: 'اِستَند', wear: 'وِر', finish: 'فینیش', change: 'چِینج', move: 'موو', push: 'پوش', pull: 'پول', catch: 'کَچ', fall: 'فال', hold: 'هولد', throw: 'ثرو', break: 'بْرِیک', fix: 'فیکس', build: 'بیلد', cut: 'کات', grow: 'گْرو', remember: 'ریمِمبِر', forget: 'فِرگِت', turn: 'تِرن', follow: 'فالو', jump: 'جامپ', swim: 'سویم', dance: 'دَنس', smile: 'اِسمایل', cry: 'کرای',
+  beautiful: 'بیوتیفُل', kind: 'کایند', nice: 'نایس', friendly: 'فرِندلی', hungry: 'هانگری', thirsty: 'ثِرستی', sick: 'سیک', healthy: 'هِلثی', strong: 'اِسترانگ', weak: 'ویک', ready: 'رِدی', late: 'لِیت', early: 'اِرلی', full: 'فول', empty: 'اِمپتی', dark: 'دارک', bright: 'بْرایت', soft: 'سافت', hard: 'هارد', heavy: 'هِوی', expensive: 'اِکسپِنسیو', safe: 'سِیف', dangerous: 'دِینجِرِس', important: 'ایمپورتِنت', interesting: 'اینترِستینگ', boring: 'بورینگ', famous: 'فِیمِس', funny: 'فانی', careful: 'کِرفُل', different: 'دیفِرِنت', same: 'سِیم', angry: 'اَنگری', afraid: 'اَفرِید', lucky: 'لاکی', delicious: 'دِلیشِس',
+  always: 'آلوِیز', usually: 'یوجوئِلی', sometimes: 'سام‌تایمز', never: 'نِوِر', often: 'آفِن', together: 'تِگِذِر', maybe: 'مِیبی', really: 'ریِلی', very: 'وِری', too: 'تو', also: 'آلسو', again: 'اِگِن', soon: 'سون', later: 'لِیتِر', first: 'فِرست', then: 'ذِن', already: 'آلرِدی', still: 'اِستیل', only: 'اونلی', almost: 'آلموست', quickly: 'کوئیکلی', carefully: 'کِرفُلی', before: 'بیفور', after: 'اَفتِر', between: 'بیتوین', behind: 'بیهایند', beside: 'بیساید', above: 'اِباو', below: 'بیلو', inside: 'این‌ساید', outside: 'آوت‌ساید', across: 'اَکراس', through: 'ثرو', around: 'اِراوند', about: 'اِباوت', if: 'ایف', or: 'اور', so: 'سو', until: 'اِنتیل', during: 'دورینگ',
+  doctor: 'داکتِر', nurse: 'نِرس', worker: 'وِرکِر', customer: 'کاستِمِر', boss: 'باس', guest: 'گِست', husband: 'هازبِند', wife: 'وایف', cousin: 'کازِن', story: 'اِستوری',
+};
+
 const word = (
   id: number, term: string, level: Level, category: string, partOfSpeech: string,
   meaningFa: string, exampleEn: string, exampleFa: string,
 ): VocabularyWord => ({
-  id: `w-${id}`, word: term, level, category, partOfSpeech, meaningFa, exampleEn, exampleFa,
+  id: `w-${id}`, word: term, level, pronunciationFa: pronunciationByWord[term.toLowerCase()], category, partOfSpeech, meaningFa, exampleEn, exampleFa,
 });
 
 export const additionalVocabulary: VocabularyWord[] = [

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Home, Compass, BookOpen, Layers, RotateCw, BarChart2, Copy,
-  Settings, Code2, Sprout, Moon, Sun, Target, Info, ArrowRight, UserRound, Type, BellRing, Clock,
+  Settings, Code2, Sprout, Moon, Sun, Target, Info, ArrowRight, UserRound, Type, BellRing, Clock, PenLine,
 } from 'lucide-react';
 import { MascotAvatar } from './MascotAvatar';
 import type { NavTab } from './BottomNav';
@@ -83,6 +83,7 @@ const sections: { title: string; items: { id: NavTab; label: string; icon: React
       { id: 'wheel', label: 'باشگاه جمله‌سازی', icon: RotateCw },
       { id: 'words', label: 'واژگان', icon: Layers },
       { id: 'flashcards', label: 'فلش کارت', icon: Copy },
+      { id: 'spelling', label: 'املا', icon: PenLine },
       { id: 'review', label: 'مرور اشتباه‌ها و آمار', icon: BarChart2 },
     ],
   },

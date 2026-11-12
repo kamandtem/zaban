@@ -83,9 +83,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMenu, notifications, daily
               <button type="button" onClick={() => { setOpenNotif(false); onDailyWordClick(); }} className="w-full text-right p-3 rounded-2xl bg-emerald-50/80 border border-emerald-100 hover:bg-emerald-50">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[10px] font-bold text-emerald-700">کلمه‌ی امروز</span>
-                  <span className="text-[9px] font-black text-emerald-700 bg-white px-1.5 py-0.5 rounded-full">{dailyWord.level ?? 'A1'}</span>
                 </div>
-                <span dir="ltr" className="block font-en text-base font-black text-slate-800 text-left mt-1">{dailyWord.word}</span>
+                <div dir="ltr" className="mt-1 flex items-baseline gap-2">
+                  <span className="font-en text-base font-black text-slate-800">{dailyWord.word}</span>
+                  <span dir="rtl" className="text-[10px] font-semibold text-teal-700">{dailyWord.pronunciationFa}</span>
+                </div>
                 <span className="block text-xs font-bold text-slate-700 mt-0.5">{dailyWord.meaningFa}</span>
                 <span dir="ltr" className="block font-en text-[10px] text-indigo-700 text-left leading-tight mt-2 line-clamp-1">{dailyWord.exampleEn}</span>
                 <span className="block text-[10px] text-slate-500 text-right leading-tight mt-0.5 line-clamp-1">{dailyWord.exampleFa}</span>
