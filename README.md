@@ -79,10 +79,10 @@ keytool -genkeypair -v -keystore lingoplus-release.jks -alias lingoplus -keyalg 
 پس از push کردن تغییرات، برچسب نسخه را بساز و push کن:
 
 ```bash
-git tag v1.3.0
-git push origin v1.3.0
+git tag v1.3.1
+git push origin v1.3.1
 ```
 
-فرایند **Android Release** یک APK و یک AAB امضاشده می‌سازد و آن‌ها را به GitHub Release نسخه‌ی `v1.3.0` پیوست می‌کند. برای بارگذاری در بازار، فایل `app-release.apk` را بردار. اجرای دستی فرایند از تب Actions هم فایل‌ها را به‌صورت Artifact می‌سازد.
+فرایند **Android Release** یک APK و یک AAB امضاشده می‌سازد و آن‌ها را به GitHub Release نسخه‌ی `v1.3.1` پیوست می‌کند. برای بارگذاری در بازار، فایل `app-release.apk` را بردار. اجرای دستی فرایند از تب Actions هم فایل‌ها را به‌صورت Artifact می‌سازد.
 
 برای نسخه‌های بعدی، `version` در `package.json`، `versionName` و `versionCode` در `android/app/build.gradle` را افزایش بده و همان کلید امضای قبلی را استفاده کن.
