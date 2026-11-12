@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { allVocabulary } from '../../data/vocabularyData';
 import { VocabularyWord, UserProgress } from '../../types';
 import {
@@ -10,6 +11,27 @@ import {
   BookOpen,
   ChevronDown,
   X,
+  Home,
+  Users,
+  Calendar,
+  MessageCircle,
+  MapPin,
+  Activity,
+  Sparkle,
+  Car,
+  Shirt,
+  ShoppingBag,
+  Cloud,
+  HeartPulse,
+  Utensils,
+  BookOpenCheck,
+  Apple,
+  Cat,
+  Palette,
+  Clock,
+  Link,
+  Briefcase,
+  type LucideIcon,
 } from 'lucide-react';
 
 interface VocabularyViewProps {
@@ -29,6 +51,33 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
 
   // Extract unique categories
   const categories = ['همه', ...Array.from(new Set(allVocabulary.map(w => w.category)))];
+const categoryIcons: Record<string, LucideIcon> = {
+  'همه': Layers,
+  'عبارت‌های روزمره': MessageCircle,
+  'مردم و خانواده': Users,
+  'زمان و تقویم': Calendar,
+  'واژه‌های رابط و پرسشی': MessageCircle,
+  'مکان و جهت': MapPin,
+  'مکان‌ها': MapPin,
+  'کارهای روزمره': Activity,
+  'صفت‌ها و حالت‌ها': Sparkle,
+  'خانه و وسایل': Home,
+  'شهر و سفر': Car,
+  'لباس': Shirt,
+  'خرید و پول': ShoppingBag,
+  'طبیعت و هوا': Cloud,
+  'بدن و سلامتی': HeartPulse,
+  'غذا و نوشیدنی': Utensils,
+  'میوه‌ها': Apple,
+  'حیوانات': Cat,
+  'خانه و مدرسه': BookOpenCheck,
+  'رنگ‌ها و صفت‌ها': Palette,
+  'قیدهای پرکاربرد': Clock,
+  'زمان و مکان': MapPin,
+  'کلمات رابط': Link,
+  'کار و مردم': Briefcase,
+  'مدرسه و یادگیری': BookOpenCheck,
+};
 
   const filteredWords = allVocabulary.filter(w => {
     const matchesCat = selectedCategory === 'همه' || w.category === selectedCategory;
@@ -73,15 +122,15 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
         </div>
       </div>
 
-      {filtersOpen && (
+      {filtersOpen && createPortal((
         <div className="fixed inset-0 z-[80] flex items-center justify-center p-4" role="presentation" onClick={() => setFiltersOpen(false)}>
           <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]" />
-          <section role="dialog" aria-modal="true" aria-label="انتخاب سطح و دسته‌ی واژگان" onClick={e => e.stopPropagation()} className="relative z-10 w-full max-w-md max-h-[82vh] overflow-hidden rounded-3xl bg-white shadow-2xl animate-scale-up">
+          <section role="dialog" aria-modal="true" aria-label="انتخاب سطح و دسته‌ی واژگان" onClick={e => e.stopPropagation()} className="relative z-10 w-full max-w-sm max-h-[78vh] overflow-hidden rounded-3xl border border-white bg-white shadow-2xl animate-scale-up">
             <div className="flex items-center justify-between border-b border-slate-100 p-4">
               <div><h3 className="text-base font-black text-slate-800">فیلتر واژگان</h3><p className="mt-0.5 text-[11px] text-slate-500">سطح و دسته‌ی دلخواهت را انتخاب کن.</p></div>
               <button type="button" onClick={() => setFiltersOpen(false)} aria-label="بستن پنجره" className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><X className="h-4 w-4" /></button>
             </div>
-            <div className="max-h-[calc(82vh-76px)] overflow-y-auto p-4">
+            <div className="max-h-[calc(78vh-76px)] overflow-y-auto p-4">
               <p className="mb-2 text-xs font-black text-slate-600">سطح زبان</p>
               <div className="grid grid-cols-3 gap-2">
                 {['همه', 'A1', 'A2'].map(level => (
@@ -92,11 +141,14 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
               </div>
               <p className="mb-2 mt-5 text-xs font-black text-slate-600">دسته‌ی واژگان</p>
               <div className="grid grid-cols-2 gap-2">
-                {categories.map(cat => (
-                  <button key={cat} type="button" onClick={() => { setSelectedCategory(cat); setOnlyBookmarks(false); }} className={`rounded-xl border px-3 py-2 text-right text-xs font-bold ${!onlyBookmarks && selectedCategory === cat ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>
-                    {cat}
+                {categories.map((cat, categoryIndex) => {
+                  const CategoryIcon = categoryIcons[cat] ?? [BookOpenCheck, Home, MapPin, Sparkle][categoryIndex % 4];
+                  return (
+                  <button key={cat} type="button" onClick={() => { setSelectedCategory(cat); setOnlyBookmarks(false); setFiltersOpen(false); }} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-right text-xs font-bold ${!onlyBookmarks && selectedCategory === cat ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>
+                    <CategoryIcon className="h-4 w-4 shrink-0" />
+                    <span>{cat}</span>
                   </button>
-                ))}
+                );})}
               </div>
               <button type="button" onClick={() => setOnlyBookmarks(value => !value)} className={`mt-3 flex w-full items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-bold ${onlyBookmarks ? 'border-amber-500 bg-amber-500 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>
                 <Bookmark className="h-4 w-4" /> واژه‌های نشان‌شده ({progress.bookmarkedWords.length})
@@ -105,7 +157,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
             </div>
           </section>
         </div>
-      )}
+      ), document.body)}
 
       {/* Vocabulary Cards List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -121,10 +173,11 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({
                 {/* Top: Word & Actions */}
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div dir="ltr" className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <div dir="rtl" className="flex flex-wrap items-baseline justify-start gap-x-1.5 gap-y-0.5">
                       <h4 dir="ltr" className="font-en text-base sm:text-lg font-black text-slate-800">
                         {item.word}
                       </h4>
+                      <span aria-hidden="true" className="text-xs font-bold text-slate-300">/</span>
                       <span dir="rtl" className="text-[11px] font-semibold text-teal-700">{item.pronunciationFa}</span>
                     </div>
                     <span className="text-xs text-teal-600 font-semibold mt-0.5 block">

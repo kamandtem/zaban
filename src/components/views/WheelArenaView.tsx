@@ -20,6 +20,33 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+const incorrectWheelOptionIndex = (exercise: (typeof wheelCategories)[number]['exercises'][number]) => {
+  const incorrectIndex = exercise.options.findIndex(option => !validateWheelAnswer(option, exercise.correctOption));
+  return incorrectIndex >= 0 ? incorrectIndex : 0;
+};
+
+const incorrectChallengeSelections = (challenge: MultiWheelChallenge): number[] => {
+  const candidate = Array(challenge.slots.length).fill(0) as number[];
+  let incorrect: number[] | null = null;
+  const visit = (slotIndex: number): boolean => {
+    if (slotIndex === challenge.slots.length) {
+      const values = challenge.slots.map((slot, index) => slot.options[candidate[index]]);
+      const valid = challenge.validCombinations.some(combination =>
+        combination.slotsMatches.every((allowed, index) => allowed.includes(values[index])),
+      );
+      if (!valid) { incorrect = [...candidate]; return true; }
+      return false;
+    }
+    for (let optionIndex = 0; optionIndex < challenge.slots[slotIndex].options.length; optionIndex += 1) {
+      candidate[slotIndex] = optionIndex;
+      if (visit(slotIndex + 1)) return true;
+    }
+    return false;
+  };
+  visit(0);
+  return incorrect ?? challenge.slots.map(slot => slot.defaultIndex);
+};
+
 interface WheelArenaViewProps {
   onRecordMistake: (questionText: string, wrongAnswer: string, correctAnswer: string, explanation: string) => void;
   onIncrementScore: () => void;
@@ -37,12 +64,12 @@ export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
   const currentChallenge = multiWheelChallenges[challengeIndex];
   const [activeSlotIndex, setActiveSlotIndex] = useState<number>(0);
   // Store selected index for each slot: { [slotId]: number }
-  const [slotSelections, setSlotSelections] = useState<number[]>([0, 0, 0, 0]);
+  const [slotSelections, setSlotSelections] = useState<number[]>(() => incorrectChallengeSelections(multiWheelChallenges[0]));
 
   // Single-wheel state
   const [selectedCatId, setSelectedCatId] = useState<string>('to-be');
   const [singleExIndex, setSingleExIndex] = useState<number>(0);
-  const [singleWheelIndex, setSingleWheelIndex] = useState<number>(0);
+  const [singleWheelIndex, setSingleWheelIndex] = useState<number>(() => incorrectWheelOptionIndex(wheelCategories[0].exercises[0]));
 
   // Common feedback
   const [hasChecked, setHasChecked] = useState<boolean>(false);
@@ -54,7 +81,7 @@ export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
   const handleSelectChallenge = (idx: number) => {
     setChallengeIndex(idx);
     setActiveSlotIndex(0);
-    setSlotSelections(multiWheelChallenges[idx].slots.map(s => s.defaultIndex));
+    setSlotSelections(incorrectChallengeSelections(multiWheelChallenges[idx]));
     setHasChecked(false);
     setIsCorrect(false);
     setFeedbackText('');
@@ -152,12 +179,9 @@ export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
   };
 
   const handleNextSingle = () => {
-    if (singleExIndex < activeSingleCat.exercises.length - 1) {
-      setSingleExIndex(prev => prev + 1);
-    } else {
-      setSingleExIndex(0);
-    }
-    setSingleWheelIndex(0);
+    const nextIndex = singleExIndex < activeSingleCat.exercises.length - 1 ? singleExIndex + 1 : 0;
+    setSingleExIndex(nextIndex);
+    setSingleWheelIndex(incorrectWheelOptionIndex(activeSingleCat.exercises[nextIndex]));
     setHasChecked(false);
     setIsCorrect(false);
   };
@@ -392,7 +416,7 @@ export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
                 onClick={() => {
                   setSelectedCatId(cat.id);
                   setSingleExIndex(0);
-                  setSingleWheelIndex(0);
+                  setSingleWheelIndex(incorrectWheelOptionIndex(cat.exercises[0]));
                   setHasChecked(false);
                   setIsCorrect(false);
                 }}

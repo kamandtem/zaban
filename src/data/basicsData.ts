@@ -204,6 +204,42 @@ export const basicsTopics: BasicTopic[] = [
     check: { question: 'کدام حرف اضافه برای «روز دوشنبه» درست است؟', options: ['in Monday', 'on Monday', 'at Monday'], correct: 1, why: 'برای روزهای هفته از on استفاده می‌کنیم: on Monday.' },
   },
   {
+    id: 'adverbs',
+    emoji: '⏱️',
+    title: 'انواع قید در جمله',
+    summary: 'قید به ما می‌گوید کاری کجا، چه وقت، چطور یا هر چند وقت انجام می‌شود.',
+    points: [
+      'قید مکان: جای انجام کار را می‌گوید؛ مثل here (اینجا)، there (آنجا) و outside (بیرون).',
+      'قید زمان: زمان انجام کار را می‌گوید؛ مثل now (الان)، today (امروز) و at 5:00 (ساعت پنج).',
+      'قید حالت: می‌گوید کار چطور انجام می‌شود؛ مثل slowly (آهسته) و carefully (بااحتیاط). خیلی از این قیدها به ly ختم می‌شوند، اما همه نه؛ fast و well نمونه‌های رایج‌اند.',
+      'قید تکرار: می‌گوید کار چند وقت یک‌بار انجام می‌شود؛ مثل always، usually، often، sometimes و never.',
+      'قید تکرار معمولاً پیش از فعل اصلی می‌آید: I often walk. اما پس از فعل be می‌آید: She is always kind.',
+      'قید مکان و زمان اغلب در پایان جمله می‌آیند؛ معمولاً اول مکان و بعد زمان: We study at home every day.',
+    ],
+    table: {
+      headers: ['نوع قید', 'پرسش ساده', 'نمونه‌ها', 'مثال'],
+      rows: [
+        ['مکان', 'کجا؟', 'here, there, outside', 'The children play outside.'],
+        ['زمان', 'چه وقت؟', 'now, today, at 5:00', 'We eat lunch at 1:00.'],
+        ['حالت', 'چطور؟', 'slowly, carefully, well', 'She speaks slowly.'],
+        ['تکرار', 'چند وقت یک‌بار؟', 'always, often, never', 'I often read at night.'],
+      ],
+      enCols: [2, 3],
+    },
+    formulas: [
+      { label: 'قید حالت معمولاً پس از فعل یا مفعول می‌آید', parts: [{ text: 'فاعل', tone: 'subject' }, { text: 'فعل', tone: 'verb' }, { text: 'قید حالت', tone: 'extra' }], example: { en: 'I walk slowly.', fa: 'من آهسته راه می‌روم.' } },
+      { label: 'قید تکرار پیش از فعل اصلی می‌آید', parts: [{ text: 'فاعل', tone: 'subject' }, { text: 'قید تکرار', tone: 'extra' }, { text: 'فعل اصلی', tone: 'verb' }], example: { en: 'I often walk.', fa: 'من اغلب پیاده‌روی می‌کنم.' } },
+      { label: 'قید تکرار پس از فعل be می‌آید', parts: [{ text: 'فاعل', tone: 'subject' }, { text: 'be', tone: 'aux' }, { text: 'قید تکرار', tone: 'extra' }, { text: 'ادامه جمله', tone: 'object' }], example: { en: 'She is always kind.', fa: 'او همیشه مهربان است.' } },
+      { label: 'مکان معمولاً پیش از زمان می‌آید', parts: [{ text: 'فاعل', tone: 'subject' }, { text: 'فعل', tone: 'verb' }, { text: 'مکان', tone: 'object' }, { text: 'زمان', tone: 'extra' }], example: { en: 'We study at home every day.', fa: 'ما هر روز در خانه درس می‌خوانیم.' } },
+    ],
+    examples: [
+      { en: 'The children play outside.', fa: 'بچه‌ها بیرون بازی می‌کنند.' },
+      { en: 'She speaks slowly.', fa: 'او آهسته صحبت می‌کند.' },
+      { en: 'He is usually busy.', fa: 'او معمولاً سرش شلوغ است.' },
+    ],
+    check: { question: 'قید تکرار را در جای خالی بگذار: I ___ drink tea in the morning.', options: ['often', 'outside', 'carefully'], correct: 0, why: 'often قید تکرار است و پیش از فعل اصلی drink آمده.' },
+  },
+  {
     id: 'possessive-s',
     emoji: '🔑',
     title: "مالکیت با 's",

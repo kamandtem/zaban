@@ -44,4 +44,39 @@ npx @capacitor/assets generate --android
 ### روش ۲: بدون نصب هیچ چیز (GitHub Actions)
 1. پروژه را در یک ریپوی GitHub آپلود کن.
 2. تب Actions → Build Android APK → Run workflow
-3. بعد از چند دقیقه، APK را از بخش Artifacts دانلود کن.
+3. بعد از چند دقیقه، APK آزمایشی را از بخش Artifacts دانلود کن. برای بازار از workflow جداگانه‌ی Android Release استفاده کن؛ خروجی آن امضاشده است.
+
+## انتشار نسخه‌ی Release در کافه‌بازار
+
+نسخه‌ی بازار باید با کلید امضای خودت ساخته شود. کلید امضا را فقط یک بار بساز و برای تمام به‌روزرسانی‌های همین برنامه نگه دار؛ فایل کلید را در GitHub یا داخل ریپو بارگذاری نکن.
+
+### ساخت کلید امضا در ویندوز
+
+در PowerShell اجرا کن و برای کلید رمزهای مطمئن انتخاب کن:
+
+```powershell
+keytool -genkeypair -v -keystore lingoplus-release.jks -alias lingoplus -keyalg RSA -keysize 2048 -validity 10000
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("$PWD\lingoplus-release.jks")) | Set-Clipboard
+```
+
+در GitHub، از مسیر **Settings → Secrets and variables → Actions** این Secretها را اضافه کن:
+
+| نام Secret | مقدار |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | محتوایی که در کلیپ‌بورد کپی شد |
+| `ANDROID_KEYSTORE_PASSWORD` | رمز keystore |
+| `ANDROID_KEY_ALIAS` | `lingoplus` |
+| `ANDROID_KEY_PASSWORD` | رمز کلید |
+
+### ساخت Release
+
+پس از push کردن تغییرات، برچسب نسخه را بساز و push کن:
+
+```bash
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+فرایند **Android Release** یک APK و یک AAB امضاشده می‌سازد و آن‌ها را به GitHub Release نسخه‌ی `v1.2.0` پیوست می‌کند. برای بارگذاری در بازار، فایل `app-release.apk` را بردار. اجرای دستی فرایند از تب Actions هم فایل‌ها را به‌صورت Artifact می‌سازد.
+
+برای نسخه‌های بعدی، `version` در `package.json`، `versionName` و `versionCode` در `android/app/build.gradle` را افزایش بده و همان کلید امضای قبلی را استفاده کن.

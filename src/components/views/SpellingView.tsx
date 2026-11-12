@@ -129,7 +129,7 @@ export const SpellingView: React.FC<SpellingViewProps> = ({ progress, onGoToCard
           const used = chosen.includes(letter.key);
           return (
             <button key={letter.key} type="button" disabled={used} onClick={() => chooseLetter(letter.key)} className={`h-11 min-w-11 rounded-xl border px-3 font-en text-lg font-black transition-all active:scale-95 ${used ? 'border-slate-100 bg-slate-100 text-slate-300' : 'border-indigo-100 bg-white text-indigo-700 shadow-sm hover:bg-indigo-50'}`}>
-              {letter.value.toUpperCase()}
+              {letter.value}
             </button>
           );
         })}

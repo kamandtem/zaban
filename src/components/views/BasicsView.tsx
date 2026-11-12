@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, CheckCircle2, XCircle, ArrowLeft, Sprout, BookOpen, UserRound, KeyRound, Home, Type, CircleHelp, Puzzle, Trophy, ArrowLeftRight, ListOrdered, Boxes, MapPin } from 'lucide-react';
+import { ChevronDown, CheckCircle2, XCircle, ArrowLeft, Sprout, BookOpen, UserRound, KeyRound, Home, Type, CircleHelp, Puzzle, Trophy, ArrowLeftRight, ListOrdered, Boxes, MapPin, Clock } from 'lucide-react';
 import { basicsTopics, BasicTopic, BasicFormula } from '../../data/basicsData';
 
 interface BasicsViewProps {
@@ -20,11 +20,11 @@ const toneClass: Record<string, string> = {
 const isLatin = (s: string) => /[A-Za-z]/.test(s);
 const topicIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   sentence: BookOpen, 'verb-forms': ListOrdered, pronouns: UserRound, 'possessive-s': KeyRound, 'noun-adjective': Home,
-  'nouns-countability': Boxes, prepositions: MapPin,
+  'nouns-countability': Boxes, prepositions: MapPin, adverbs: Clock,
   articles: Type, 'question-words': CircleHelp, 'making-adjectives': Puzzle, comparison: Trophy,
 };
 
-const basicsOrder = ['sentence', 'pronouns', 'nouns-countability', 'articles', 'prepositions', 'verb-forms', 'noun-adjective', 'possessive-s', 'question-words', 'making-adjectives', 'comparison'];
+const basicsOrder = ['sentence', 'pronouns', 'nouns-countability', 'articles', 'prepositions', 'adverbs', 'verb-forms', 'noun-adjective', 'possessive-s', 'question-words', 'making-adjectives', 'comparison'];
 const orderedBasicsTopics = [...basicsTopics].sort((a, b) => basicsOrder.indexOf(a.id) - basicsOrder.indexOf(b.id));
 
 const FormulaRow: React.FC<{ f: BasicFormula }> = ({ f }) => (
@@ -54,20 +54,30 @@ const BasicTableView: React.FC<{ topic: BasicTopic }> = ({ topic }) => {
   const table = topic.table;
   const isVerbForms = topic.id === 'verb-forms';
   const isPronouns = topic.id === 'pronouns';
+  const [showPossessiveColumns, setShowPossessiveColumns] = useState(false);
+  const visibleColumns = isPronouns && !showPossessiveColumns ? [0, 1, 2] : table.headers.map((_, index) => index);
   return (
     <div className="overflow-x-auto no-scrollbar rounded-2xl border border-slate-100">
-      <table dir={isVerbForms ? 'ltr' : undefined} className={`w-full text-xs ${isVerbForms ? 'table-fixed' : ''} ${isPronouns ? 'min-w-[560px]' : ''}`}>
+      <table dir={isVerbForms ? 'ltr' : undefined} className={`w-full text-xs ${isVerbForms ? 'table-fixed' : ''} ${isPronouns ? (showPossessiveColumns ? 'min-w-[560px]' : 'min-w-[350px]') : ''}`}>
         <thead className="bg-slate-50">
-          <tr>{table.headers.map((h, hi) => <th key={h} dir={isVerbForms ? 'rtl' : undefined} className={`p-2 font-bold leading-tight ${table.columnTones?.[hi] ?? 'text-slate-500'} ${isVerbForms ? 'text-[10px] whitespace-normal' : 'whitespace-nowrap'}`}>{h}</th>)}</tr>
+          <tr>{visibleColumns.map(hi => <th key={table.headers[hi]} dir={isVerbForms ? 'rtl' : undefined} className={`p-2 font-bold leading-tight ${table.columnTones?.[hi] ?? 'text-slate-500'} ${isVerbForms ? 'text-[10px] whitespace-normal' : 'whitespace-nowrap'}`}>
+            {table.headers[hi]}
+            {isPronouns && hi === 2 && <button type="button" aria-expanded={showPossessiveColumns} onClick={() => setShowPossessiveColumns(value => !value)} className="mt-1 flex w-full items-center justify-center gap-1 rounded-lg bg-violet-50 px-1.5 py-1 text-[9px] font-bold text-violet-700">
+              <span>{showPossessiveColumns ? 'بستن ستون‌های ملکی' : 'نمایش صفت و ضمیر ملکی'}</span><ChevronDown className={`h-3 w-3 transition-transform ${showPossessiveColumns ? 'rotate-180' : ''}`} />
+            </button>}
+          </th>)}</tr>
         </thead>
         <tbody>
           {table.rows.map((r, ri) => (
             <tr key={ri} className="border-t border-slate-100">
-              {r.map((cell, ci) => (
+              {visibleColumns.map(ci => {
+                const cell = r[ci];
+                return (
                 <td key={ci} className={`p-2 text-center ${isVerbForms ? 'break-words' : 'whitespace-nowrap'} ${table.columnTones?.[ci] ? `font-en font-black ${table.columnTones[ci]}` : table.enCols.includes(ci) ? 'font-en font-bold text-indigo-700' : 'text-slate-600'}`}>
                   {cell}
                 </td>
-              ))}
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -81,12 +91,13 @@ const TopicCard: React.FC<{
   onToggle: () => void; onDone: () => void;
 }> = ({ topic, index, open, done, onToggle, onDone }) => {
   const [picked, setPicked] = useState<number | null>(null);
+  const cardRef = React.useRef<HTMLDivElement>(null);
   const correct = picked === topic.check.correct;
   const TopicIcon = topicIcons[topic.id] || ArrowLeftRight;
 
   return (
-    <div className={`bg-white rounded-3xl border shadow-xs overflow-hidden transition-all ${open ? 'border-emerald-200 shadow-md' : 'border-slate-100'}`}>
-      <button type="button" onClick={onToggle} className="w-full flex items-center gap-3 p-4 text-right">
+    <div ref={cardRef} className={`scroll-mt-24 bg-white rounded-3xl border shadow-xs overflow-hidden transition-all ${open ? 'border-emerald-200 shadow-md' : 'border-slate-100'}`}>
+      <button type="button" onClick={() => { if (!open) requestAnimationFrame(() => cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })); onToggle(); }} className="w-full flex items-center gap-3 p-4 text-right">
         <span className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0"><TopicIcon className="w-5 h-5 text-emerald-700" /></span>
         <div className="flex-1 min-w-0">
           <span className="text-[10px] font-bold text-emerald-600">قدم {(index + 1).toLocaleString('fa-IR')}</span>
