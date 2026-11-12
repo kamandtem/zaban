@@ -2,10 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { ArrowLeft, Check, RotateCcw, SpellCheck, X } from 'lucide-react';
 import { allVocabulary } from '../../data/vocabularyData';
 import type { UserProgress, VocabularyWord } from '../../types';
+import { FREE_SPELLING_WORD_LIMIT, FREE_WORD_LIMIT } from '../../utils/premiumAccess';
 
 interface SpellingViewProps {
   progress: UserProgress;
   onGoToCards: () => void;
+  isPremium: boolean;
+  onUpgrade: () => void;
 }
 
 const todayKey = () => {
@@ -13,16 +16,19 @@ const todayKey = () => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
-export const SpellingView: React.FC<SpellingViewProps> = ({ progress, onGoToCards }) => {
+export const SpellingView: React.FC<SpellingViewProps> = ({ progress, onGoToCards, isPremium, onUpgrade }) => {
   const today = todayKey();
-  const session = useMemo(() => {
-    const inLeitner = allVocabulary.filter(word => Boolean(progress.leitnerCards[word.id]));
+  const allLeitnerWords = useMemo(() => {
+    const availableVocabulary = isPremium ? allVocabulary : allVocabulary.slice(0, FREE_WORD_LIMIT);
+    const inLeitner = availableVocabulary.filter(word => Boolean(progress.leitnerCards[word.id]));
     return inLeitner.sort((a, b) => {
       const aDue = progress.leitnerCards[a.id].dueDate <= today;
       const bDue = progress.leitnerCards[b.id].dueDate <= today;
       return Number(bDue) - Number(aDue) || progress.leitnerCards[a.id].dueDate.localeCompare(progress.leitnerCards[b.id].dueDate);
     });
-  }, [progress.leitnerCards, today]);
+  }, [progress.leitnerCards, today, isPremium]);
+  const session = isPremium ? allLeitnerWords : allLeitnerWords.slice(0, FREE_SPELLING_WORD_LIMIT);
+  const hasLockedWords = !isPremium && allLeitnerWords.length > FREE_SPELLING_WORD_LIMIT;
   const [index, setIndex] = useState(0);
   const [chosen, setChosen] = useState<string[]>([]);
   const [checked, setChecked] = useState(false);
@@ -85,10 +91,16 @@ export const SpellingView: React.FC<SpellingViewProps> = ({ progress, onGoToCard
   if (!card) {
     return (
       <div className="mx-auto flex max-w-xl flex-col items-center gap-3 px-5 py-16 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-600"><Check className="h-8 w-8" /></div>
-        <h2 className="text-xl font-black text-slate-800">آفرین! املاها تمام شد.</h2>
-        <p className="text-sm text-slate-500">برای تمرین دوباره، از اول شروع کن.</p>
-        <button type="button" onClick={() => { setIndex(0); setChosen([]); setChecked(false); }} className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white active:scale-95">شروع دوباره</button>
+        <div className={`flex h-16 w-16 items-center justify-center rounded-3xl ${hasLockedWords ? 'bg-violet-100 text-violet-700' : 'bg-emerald-50 text-emerald-600'}`}>
+          {hasLockedWords ? <span className="text-xl font-black">۲۰</span> : <Check className="h-8 w-8" />}
+        </div>
+        <h2 className="text-xl font-black text-slate-800">{hasLockedWords ? 'به سقف رایگان املا رسیدی' : 'آفرین! املاها تمام شد.'}</h2>
+        <p className="max-w-sm text-sm leading-relaxed text-slate-500">{hasLockedWords ? '۲۰ واژهٔ اول رایگان است. برای املا و تمرین همهٔ واژه‌ها نسخهٔ کامل را تهیه کن.' : 'برای تمرین دوباره، از اول شروع کن.'}</p>
+        {hasLockedWords ? (
+          <button type="button" onClick={onUpgrade} className="rounded-2xl bg-indigo-700 px-5 py-3 text-sm font-black text-white shadow-md">بازکردن املا برای همهٔ واژه‌ها</button>
+        ) : (
+          <button type="button" onClick={() => { setIndex(0); setChosen([]); setChecked(false); }} className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white active:scale-95">شروع دوباره</button>
+        )}
       </div>
     );
   }

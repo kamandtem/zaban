@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Home, Compass, BookOpen, Layers, RotateCw, BarChart2, Copy,
   Settings, Code2, Sprout, Moon, Sun, Target, Info, ArrowRight, UserRound, Type, BellRing, Clock, PenLine,
+  Crown, LockKeyhole,
 } from 'lucide-react';
 import { MascotAvatar } from './MascotAvatar';
 import type { NavTab } from './BottomNav';
@@ -28,6 +29,8 @@ interface SideMenuProps {
   onChangeReminderPreferences: (preferences: ReminderPreferences) => void;
   reminderMessage: string;
   onReplayIntro: () => void;
+  isPremium: boolean;
+  onOpenUpgrade: () => void;
 }
 
 // دکمه‌های انتخاب چندحالته (برای تنظیمات)
@@ -98,6 +101,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   theme, onToggleTheme,
   dailyGoal, onChangeDailyGoal, displayName, onChangeDisplayName,
   fontScale, onChangeFontScale, reminderPreferences, onChangeReminderPreferences, reminderMessage, onReplayIntro,
+  isPremium, onOpenUpgrade,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const dark = theme === 'dark';
@@ -308,6 +312,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({
           </div>
         ) : (
         <nav className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar">
+          <button
+            type="button"
+            onClick={() => { onOpenUpgrade(); onClose(); }}
+            className={`mb-4 flex w-full items-center gap-3 rounded-2xl border p-3.5 text-right ${isPremium ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-gradient-to-l from-amber-50 to-violet-50 text-slate-800'}`}
+          >
+            <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${isPremium ? 'bg-emerald-100 text-emerald-700' : 'bg-white text-amber-600 shadow-sm'}`}>{isPremium ? <Crown className="h-5 w-5" /> : <LockKeyhole className="h-5 w-5" />}</span>
+            <span className="flex-1"><span className="block text-sm font-black">{isPremium ? 'نسخهٔ کامل فعاله' : 'خرید نسخهٔ کامل'}</span><span className="mt-0.5 block text-[10px] opacity-75">{isPremium ? 'دسترسی همیشگی به همهٔ امکانات' : 'بازکردن همهٔ واژه‌ها و تمرین‌ها'}</span></span>
+          </button>
           {sections.map(sec => (
             <div key={sec.title} className="mb-3">
               <p className="text-xs font-bold text-slate-400 px-2 mb-2">{sec.title}</p>

@@ -33,15 +33,20 @@ import {
   Briefcase,
   type LucideIcon,
 } from 'lucide-react';
+import { FREE_WORD_LIMIT } from '../../utils/premiumAccess';
 
 interface VocabularyViewProps {
   progress: UserProgress;
   onToggleBookmarkWord: (word: string) => void;
+  isPremium: boolean;
+  onUpgrade: () => void;
 }
 
 export const VocabularyView: React.FC<VocabularyViewProps> = ({
   progress,
   onToggleBookmarkWord,
+  isPremium,
+  onUpgrade,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('همه');
   const [selectedLevel, setSelectedLevel] = useState<string>('همه');
@@ -79,7 +84,7 @@ const categoryIcons: Record<string, LucideIcon> = {
   'مدرسه و یادگیری': BookOpenCheck,
 };
 
-  const filteredWords = allVocabulary.filter(w => {
+  const matchesFilters = (w: VocabularyWord) => {
     const matchesCat = selectedCategory === 'همه' || w.category === selectedCategory;
     const matchesLevel = selectedLevel === 'همه' || w.level === selectedLevel;
     const matchesSearch =
@@ -89,7 +94,10 @@ const categoryIcons: Record<string, LucideIcon> = {
       !onlyBookmarks || progress.bookmarkedWords.includes(w.word.toLowerCase());
 
     return matchesCat && matchesLevel && matchesSearch && matchesBookmark;
-  });
+  };
+  const freeVocabulary = isPremium ? allVocabulary : allVocabulary.slice(0, FREE_WORD_LIMIT);
+  const filteredWords = freeVocabulary.filter(matchesFilters);
+  const hasLockedMatches = !isPremium && allVocabulary.slice(FREE_WORD_LIMIT).some(matchesFilters);
 
   return (
     <div className="flex flex-col gap-4 pb-24 px-4 max-w-2xl mx-auto animate-fade-in">
@@ -97,7 +105,7 @@ const categoryIcons: Record<string, LucideIcon> = {
       <div className="bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 rounded-3xl p-5 text-white shadow-lg relative overflow-hidden">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-xl sm:text-2xl font-black">واژگان روزمره</h2>
-          <span className="text-[10px] font-bold bg-white/20 px-2.5 py-1 rounded-full">۳۶۵ واژه</span>
+          <span className="text-[10px] font-bold bg-white/20 px-2.5 py-1 rounded-full">{isPremium ? '۳۶۵ واژه' : '۱۵۰ واژه رایگان از ۳۶۵'}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-2 mt-3">
@@ -224,6 +232,14 @@ const categoryIcons: Record<string, LucideIcon> = {
         <div className="text-center py-12 bg-white rounded-3xl border border-slate-100 p-6">
           <p className="text-slate-500 text-sm">هیچ واژه‌ای با این مشخصات یافت نشد.</p>
         </div>
+      )}
+
+      {hasLockedMatches && (
+        <section className="rounded-3xl border border-amber-200 bg-gradient-to-l from-amber-50 to-violet-50 p-5 text-center shadow-sm">
+          <p className="text-sm font-black text-slate-800">واژه‌های بیشتری در نسخهٔ کامل هست</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">با این فیلتر واژه‌های قفل‌شده هم پیدا شد.</p>
+          <button type="button" onClick={onUpgrade} className="mt-3 rounded-xl bg-indigo-700 px-5 py-2.5 text-xs font-black text-white shadow-sm">بازکردن همهٔ ۳۶۵ واژه</button>
+        </section>
       )}
     </div>
   );

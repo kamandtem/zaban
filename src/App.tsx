@@ -19,6 +19,9 @@ import { setupNative, setStatusBarTheme } from './utils/native';
 import { SplashScreen } from './components/SplashScreen';
 import { Onboarding } from './components/Onboarding';
 import { allVocabulary } from './data/vocabularyData';
+import { PremiumUpgradeModal } from './components/PremiumUpgradeModal';
+import { buyPremiumOnce, connectToBazaar, isBazaarAndroid, queryPremiumPurchase } from './utils/bazaarBilling';
+import { FREE_WORD_LIMIT, getFirstLaunchTime, isLeitnerTrialExpired, readPremiumEntitlement, writePremiumEntitlement } from './utils/premiumAccess';
 import {
   parseReminderPreferences,
   requestReminderAccess,
@@ -59,7 +62,14 @@ export default function App() {
   const [reminderStatus, setReminderStatus] = useState<ReminderStatus>('ready');
   const [reminderMessage, setReminderMessage] = useState('');
   const [todayKey, setTodayKey] = useState(() => localDateKey(new Date()));
+  const [clockNow, setClockNow] = useState(() => Date.now());
+  const [firstLaunchTime] = useState(getFirstLaunchTime);
+  const [isPremium, setIsPremium] = useState(readPremiumEntitlement);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [purchaseBusy, setPurchaseBusy] = useState(false);
+  const [purchaseMessage, setPurchaseMessage] = useState('');
   const [stage, setStage] = useState<'splash' | 'onboarding' | 'app'>('splash');
+  const leitnerTrialExpired = isLeitnerTrialExpired(firstLaunchTime, clockNow);
 
   const handleSplashDone = () => setStage(hasSeenOnboarding() ? 'app' : 'onboarding');
   const handleOnboardingFinish = () => {
@@ -72,22 +82,42 @@ export default function App() {
     const timer = window.setInterval(() => {
       const current = localDateKey(new Date());
       setTodayKey(previous => previous === current ? previous : current);
+      setClockNow(Date.now());
     }, 60_000);
     return () => window.clearInterval(timer);
   }, []);
   useEffect(() => {
+    if (!isBazaarAndroid()) return;
     let active = true;
-    synchronizeReminders(reminderPreferences, progress).then(status => {
+    void (async () => {
+      await connectToBazaar();
+      const owned = await queryPremiumPurchase();
+      if (active) {
+        setIsPremium(owned);
+        writePremiumEntitlement(owned);
+      }
+    })().catch(() => {
+      // Keep a previously verified entitlement available during temporary store outages.
+    });
+    return () => { active = false; };
+  }, []);
+  useEffect(() => {
+    let active = true;
+    const remindersAllowed = isPremium || !leitnerTrialExpired
+      ? reminderPreferences
+      : { ...reminderPreferences, leitnerEnabled: false };
+    synchronizeReminders(remindersAllowed, progress).then(status => {
       if (!active) return;
       setReminderStatus(status);
-      if (!reminderPreferences.dailyWordEnabled && !reminderPreferences.leitnerEnabled) setReminderMessage('');
+      if (!remindersAllowed.dailyWordEnabled && !remindersAllowed.leitnerEnabled) setReminderMessage('');
+      else if (reminderPreferences.leitnerEnabled && !remindersAllowed.leitnerEnabled) setReminderMessage('دوره‌ی رایگان جعبه‌ی لایتنر تمام شده؛ یادآوری‌های مرور پس از خرید نسخه‌ی کامل دوباره فعال می‌شوند.');
       else if (status === 'denied') setReminderMessage('اجازه‌ی اعلان‌ها فعال نیست. از تنظیمات گوشی اجازه‌ی اعلان‌های لینگوپلاس را بده.');
       else if (status === 'unsupported') setReminderMessage('یادآوری دستگاه در نسخه‌ی نصب‌شده‌ی برنامه فعال می‌شود.');
       else if (status === 'approximate') setReminderMessage('یادآوری‌ها فعال‌اند؛ اگر «هشدارها و یادآورها» در تنظیمات گوشی خاموش باشد، ممکن است کمی دیرتر برسند.');
       else setReminderMessage('یادآوری‌ها روشن‌اند و در زمان انتخاب‌شده فرستاده می‌شوند.');
     });
     return () => { active = false; };
-  }, [reminderPreferences, progress.leitnerCards]);
+  }, [reminderPreferences, progress.leitnerCards, isPremium, leitnerTrialExpired]);
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     document.documentElement.style.colorScheme = theme;
@@ -222,6 +252,39 @@ export default function App() {
     writeKey(REMINDER_SETTINGS_KEY, JSON.stringify(next));
   };
 
+  const handleBuyPremium = async () => {
+    setPurchaseBusy(true);
+    setPurchaseMessage('');
+    try {
+      await connectToBazaar();
+      await buyPremiumOnce();
+      setIsPremium(true);
+      writePremiumEntitlement(true);
+      setPurchaseMessage('خرید با موفقیت انجام شد؛ همهٔ امکانات باز شدند.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'پرداخت انجام نشد. دوباره تلاش کن.';
+      setPurchaseMessage(message);
+    } finally {
+      setPurchaseBusy(false);
+    }
+  };
+
+  const handleRestorePremium = async () => {
+    setPurchaseBusy(true);
+    setPurchaseMessage('');
+    try {
+      await connectToBazaar();
+      const owned = await queryPremiumPurchase();
+      setIsPremium(owned);
+      writePremiumEntitlement(owned);
+      setPurchaseMessage(owned ? 'خرید قبلی بازیابی شد؛ نسخهٔ کامل فعاله.' : 'خرید قبلی برای این حساب بازار پیدا نشد.');
+    } catch (error) {
+      setPurchaseMessage(error instanceof Error ? error.message : 'بازیابی خرید انجام نشد.');
+    } finally {
+      setPurchaseBusy(false);
+    }
+  };
+
   const handleClearMistakes = () => setProgress(prev => ({ ...prev, mistakes: [] }));
   const handleRemoveMistake = (id: string) =>
     setProgress(prev => ({ ...prev, mistakes: prev.mistakes.filter(m => m.id !== id) }));
@@ -249,7 +312,8 @@ export default function App() {
   const dayDate = new Date(`${todayKey}T12:00:00`);
   const startOfYear = new Date(dayDate.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((dayDate.getTime() - startOfYear.getTime()) / 86_400_000);
-  const dailyWord = allVocabulary[(dayOfYear - 1) % allVocabulary.length];
+  const dailyWordVocabulary = isPremium ? allVocabulary : allVocabulary.slice(0, FREE_WORD_LIMIT);
+  const dailyWord = dailyWordVocabulary[(dayOfYear - 1) % dailyWordVocabulary.length];
 
   return (
     <div className="min-h-screen bg-[#F8F9FE] text-slate-800 flex flex-col font-fa select-text">
@@ -264,6 +328,8 @@ export default function App() {
         level={level}
         streakDays={progress.streakDays}
         mistakesCount={progress.mistakes.length}
+        isPremium={isPremium}
+        onOpenUpgrade={() => { setPurchaseMessage(''); setUpgradeOpen(true); }}
         theme={theme}
         onToggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
         dailyGoal={progress.dailyGoal}
@@ -308,16 +374,16 @@ export default function App() {
               />
             )}
             {currentTab === 'wheel' && (
-              <WheelArenaView onRecordMistake={handleRecordMistake} onIncrementScore={handleIncrementScore} />
+              <WheelArenaView onRecordMistake={handleRecordMistake} onIncrementScore={handleIncrementScore} isPremium={isPremium} onUpgrade={() => { setPurchaseMessage(''); setUpgradeOpen(true); }} />
             )}
             {currentTab === 'lessons' && (
               <LessonsListView progress={progress} onSelectLesson={id => setSelectedLessonId(id)} />
             )}
             {currentTab === 'words' && (
-              <VocabularyView progress={progress} onToggleBookmarkWord={handleToggleBookmarkWord} />
+              <VocabularyView progress={progress} onToggleBookmarkWord={handleToggleBookmarkWord} isPremium={isPremium} onUpgrade={() => { setPurchaseMessage(''); setUpgradeOpen(true); }} />
             )}
-            {currentTab === 'flashcards' && <FlashcardsView progress={progress} onRateWord={handleRateFlashcard} />}
-            {currentTab === 'spelling' && <SpellingView progress={progress} onGoToCards={() => goTab('flashcards')} />}
+            {currentTab === 'flashcards' && <FlashcardsView progress={progress} onRateWord={handleRateFlashcard} isPremium={isPremium} trialExpired={leitnerTrialExpired} onUpgrade={() => { setPurchaseMessage(''); setUpgradeOpen(true); }} />}
+            {currentTab === 'spelling' && <SpellingView progress={progress} onGoToCards={() => goTab('flashcards')} isPremium={isPremium} onUpgrade={() => { setPurchaseMessage(''); setUpgradeOpen(true); }} />}
             {currentTab === 'review' && (
               <ReviewMistakesView
                 progress={progress}
@@ -332,6 +398,16 @@ export default function App() {
       </main>
 
       <BottomNav currentTab={activeTab} onTabChange={goTab} mistakesCount={progress.mistakes.length} />
+
+      <PremiumUpgradeModal
+        open={upgradeOpen}
+        isPremium={isPremium}
+        busy={purchaseBusy}
+        message={purchaseMessage}
+        onClose={() => setUpgradeOpen(false)}
+        onBuy={() => { void handleBuyPremium(); }}
+        onRestore={() => { void handleRestorePremium(); }}
+      />
 
       {stage === 'onboarding' && <Onboarding onFinish={handleOnboardingFinish} />}
       {stage === 'splash' && <SplashScreen onDone={handleSplashDone} />}

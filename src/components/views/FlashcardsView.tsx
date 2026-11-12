@@ -1,20 +1,29 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { allVocabulary } from '../../data/vocabularyData';
 import type { UserProgress } from '../../types';
-import { ArrowUp, RotateCcw, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
+import { FREE_WORD_LIMIT } from '../../utils/premiumAccess';
+import { ArrowUp, RotateCcw, ChevronLeft, ChevronRight, Layers, LockKeyhole } from 'lucide-react';
 
-interface FlashcardsViewProps { progress: UserProgress; onRateWord: (wordId: string, remembered: boolean) => void }
+interface FlashcardsViewProps {
+  progress: UserProgress;
+  onRateWord: (wordId: string, remembered: boolean) => void;
+  isPremium: boolean;
+  trialExpired: boolean;
+  onUpgrade: () => void;
+}
 
 const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
-export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRateWord }) => {
-  const [session] = useState(() => {
+export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRateWord, isPremium, trialExpired, onUpgrade }) => {
+  const buildSession = (premium: boolean, currentProgress: UserProgress) => {
     const today = todayKey();
-    const due = allVocabulary.filter(w => progress.leitnerCards[w.id] && progress.leitnerCards[w.id].dueDate <= today);
-    const alreadyNewToday = progress.leitnerNewDate === today ? progress.leitnerNewCount : 0;
-    const fresh = allVocabulary.filter(w => !progress.leitnerCards[w.id]).slice(0, Math.max(0, 10 - alreadyNewToday));
+    const availableVocabulary = premium ? allVocabulary : allVocabulary.slice(0, FREE_WORD_LIMIT);
+    const due = availableVocabulary.filter(w => currentProgress.leitnerCards[w.id] && currentProgress.leitnerCards[w.id].dueDate <= today);
+    const alreadyNewToday = currentProgress.leitnerNewDate === today ? currentProgress.leitnerNewCount : 0;
+    const fresh = availableVocabulary.filter(w => !currentProgress.leitnerCards[w.id]).slice(0, Math.max(0, 10 - alreadyNewToday));
     return [...due, ...fresh];
-  });
+  };
+  const [session, setSession] = useState(() => buildSession(isPremium, progress));
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [dragY, setDragY] = useState(0);
@@ -23,6 +32,22 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
   const start = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const card = session[index];
+
+  useEffect(() => {
+    setSession(buildSession(isPremium, progress));
+    setIndex(0);
+  }, [isPremium]);
+
+  if (!isPremium && trialExpired) {
+    return (
+      <div className="mx-auto flex max-w-xl flex-col items-center gap-3 px-5 py-16 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-violet-100 text-violet-700"><LockKeyhole className="h-8 w-8" /></div>
+        <h2 className="text-xl font-black text-slate-800">دورهٔ رایگان جعبهٔ لایتنر تمام شده</h2>
+        <p className="max-w-sm text-sm leading-relaxed text-slate-500">کارت‌ها و پیشرفت مرور تو نگه داشته شده‌اند. با خرید یک‌باره، جعبهٔ لایتنر را ادامه بده و همهٔ امکانات را باز کن.</p>
+        <button type="button" onClick={onUpgrade} className="mt-2 rounded-2xl bg-indigo-700 px-5 py-3 text-sm font-black text-white shadow-md">خرید نسخهٔ کامل</button>
+      </div>
+    );
+  }
 
   const next = () => {
     setIndex(i => Math.min(i + 1, session.length));
@@ -42,11 +67,12 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ progress, onRate
   const tomorrowKey = dateKey(tomorrow);
   const daysUntil = (date: string) => Math.round((new Date(`${date}T12:00:00`).getTime() - new Date(`${today}T12:00:00`).getTime()) / 86400000);
   const freshToday = Math.max(0, 10 - (progress.leitnerNewDate === today ? progress.leitnerNewCount : 0));
+  const availableVocabulary = isPremium ? allVocabulary : allVocabulary.slice(0, FREE_WORD_LIMIT);
   const reminders = [
-    { label: 'امروز', count: allVocabulary.filter(w => progress.leitnerCards[w.id]?.dueDate <= today).length + freshToday },
-    { label: 'فردا', count: allVocabulary.filter(w => progress.leitnerCards[w.id]?.dueDate === tomorrowKey).length },
-    { label: 'هفته‌ی بعد', count: allVocabulary.filter(w => { const d = progress.leitnerCards[w.id]?.dueDate; return d && daysUntil(d) >= 2 && daysUntil(d) <= 7; }).length },
-    { label: 'ماه بعد', count: allVocabulary.filter(w => { const d = progress.leitnerCards[w.id]?.dueDate; return d && daysUntil(d) >= 8 && daysUntil(d) <= 30; }).length },
+    { label: 'امروز', count: availableVocabulary.filter(w => progress.leitnerCards[w.id]?.dueDate <= today).length + freshToday },
+    { label: 'فردا', count: availableVocabulary.filter(w => progress.leitnerCards[w.id]?.dueDate === tomorrowKey).length },
+    { label: 'هفته‌ی بعد', count: availableVocabulary.filter(w => { const d = progress.leitnerCards[w.id]?.dueDate; return d && daysUntil(d) >= 2 && daysUntil(d) <= 7; }).length },
+    { label: 'ماه بعد', count: availableVocabulary.filter(w => { const d = progress.leitnerCards[w.id]?.dueDate; return d && daysUntil(d) >= 8 && daysUntil(d) <= 30; }).length },
   ];
 
   return (

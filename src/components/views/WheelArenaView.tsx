@@ -17,8 +17,10 @@ import {
   Wand2,
   CircleDot,
   Target,
+  LockKeyhole,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { FREE_SENTENCE_QUESTION_LIMIT } from '../../utils/premiumAccess';
 
 const incorrectWheelOptionIndex = (exercise: (typeof wheelCategories)[number]['exercises'][number]) => {
   const incorrectIndex = exercise.options.findIndex(option => !validateWheelAnswer(option, exercise.correctOption));
@@ -50,11 +52,15 @@ const incorrectChallengeSelections = (challenge: MultiWheelChallenge): number[] 
 interface WheelArenaViewProps {
   onRecordMistake: (questionText: string, wrongAnswer: string, correctAnswer: string, explanation: string) => void;
   onIncrementScore: () => void;
+  isPremium: boolean;
+  onUpgrade: () => void;
 }
 
 export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
   onRecordMistake,
   onIncrementScore,
+  isPremium,
+  onUpgrade,
 }) => {
   // Mode: 'multi-slot' (user taps on subject, auxiliary, verb, time marker) OR 'single'
   const [arenaMode, setArenaMode] = useState<'multi-slot' | 'single'>('multi-slot');
@@ -148,6 +154,14 @@ export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
     wheelCategories.find(c => c.id === selectedCatId) || wheelCategories[0];
   const currentSingleEx =
     activeSingleCat.exercises[singleExIndex] || activeSingleCat.exercises[0];
+  const freeQuestionIds = new Set([
+    ...multiWheelChallenges.map(challenge => `multi:${challenge.id}`),
+    ...wheelCategories.flatMap(category => category.exercises.map((_, index) => `single:${category.id}:${index}`)),
+  ].slice(0, FREE_SENTENCE_QUESTION_LIMIT));
+  const currentQuestionId = arenaMode === 'multi-slot'
+    ? `multi:${currentChallenge.id}`
+    : `single:${activeSingleCat.id}:${singleExIndex}`;
+  const questionLocked = !isPremium && !freeQuestionIds.has(currentQuestionId);
 
   const handleCheckSingle = () => {
     if (hasChecked) return;
@@ -185,6 +199,17 @@ export const WheelArenaView: React.FC<WheelArenaViewProps> = ({
     setHasChecked(false);
     setIsCorrect(false);
   };
+
+  if (questionLocked) {
+    return (
+      <div className="mx-auto flex max-w-xl flex-col items-center gap-3 px-5 py-16 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-violet-100 text-violet-700"><LockKeyhole className="h-8 w-8" /></div>
+        <h2 className="text-xl font-black text-slate-800">۲۰ تمرین اول رایگان است</h2>
+        <p className="max-w-sm text-sm leading-relaxed text-slate-500">برای ادامهٔ باشگاه جمله‌سازی و بازکردن همهٔ پرسش‌ها، نسخهٔ کامل را تهیه کن.</p>
+        <button type="button" onClick={onUpgrade} className="mt-2 rounded-2xl bg-indigo-700 px-5 py-3 text-sm font-black text-white shadow-md">خرید نسخهٔ کامل</button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 pb-36 px-4 max-w-2xl mx-auto animate-fade-in">
